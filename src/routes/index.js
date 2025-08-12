@@ -9,7 +9,9 @@ import ConsulCompleted from "../pages/Consultations/ConsulCompleted";
 import ConsulDetails from "../pages/Consultations/ConsulDetails";
 import ConsulCompleteDetails from "../pages/Consultations/ConsulCompletedDetails";
 import ScheduleAppointment from "../pages/Consultations/ScheduleAppointment";
-import App from "../pages/App"; // Importe o componente App
+import ModalRegisterUser from "../components/ModalRegisterUser";
+import ModalRegisterVet from "../components/ModalRegisterVet";
+import App from "../pages/App";
 
 export default function AppRoutes() {
   return (
@@ -25,7 +27,9 @@ export default function AppRoutes() {
         <Route path="/detalhes-consulta" element={<ConsulDetails />} />
         <Route path="/detalhes-consulta-concluida" element={<ConsulCompleteDetails />} />
         <Route path="/agendar-consulta" element={<ScheduleAppointment />} />
-        <Route path="/app" element={<App />} /> {/* Nova rota para o App */}
+        <Route path="/register-user" element={<ModalRegisterUser />} />
+        <Route path="/register-vet" element={<ModalRegisterVet />} />
+        <Route path="/app" element={<App />} />
       </Routes>
     </BrowserRouter>
   );
