@@ -19,7 +19,10 @@ import VetDashboard from '../pages/Vet/Dashboard/Dashboard';
 import VetConsultas from '../pages/Vet/Consultas/Consultas';
 import VetRelatorios from '../pages/Vet/Relatorios/Relatorios';
 import VetDetalhesConsulta from '../pages/Vet/DetalhesConsulta/DetalhesConsulta';
+import VetPerfil from '../pages/Vet/Perfil/Perfil';
 import VetChat from '../pages/Vet/Chat/Chat';
+import VetList from '../pages/admin/VetList/VetList';
+import AdminDashboard from "../pages/admin/Dashboard/Dashboard";
 
 export default function AppRoutes() {
   return (
@@ -47,6 +50,11 @@ export default function AppRoutes() {
         <Route path="/vet/relatorios" element={<VetRelatorios />} />
         <Route path="/vet/consultas/:consultaId" element={<VetDetalhesConsulta />} />
         <Route path="/vet/chat" element={<VetChat />} />
+        <Route path="/vet/perfil" element={<VetPerfil />} />
+
+         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/veterinarios" element={<VetList />} />
+        <Route path="/admin/pacientes" element={<div>Página de Pacientes em Construção</div>} />
       </Routes>
     </BrowserRouter>
   );

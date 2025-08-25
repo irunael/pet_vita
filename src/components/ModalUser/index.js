@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react'; // Adicionar useState
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './css/styles.css';
-import ModalVet from '../ModalVet';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 
 const ModalUser = ({ onClose, switchToVet }) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(''); // Estado para guardar o email
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email.toLowerCase() === 'admin@petvita.com') {
+      login('admin');
+      onClose();
+      navigate('/admin/dashboard');
+    } else {
+      // Lógica de login normal do cliente (simulada)
+      login('client');
+      onClose();
+      // Em um sistema real, aqui iria para a página do cliente
+    }
+  };
+
   return (
     <div className="modal active" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -15,33 +34,20 @@ const ModalUser = ({ onClose, switchToVet }) => {
         <div className="logo-modal">
           <img src={logo} alt="Pet Vita Logo" />
         </div>
-        <form className="form">
+        <form className="form" onSubmit={handleLogin}>
           <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" placeholder="Digite o seu email" required />
+            <label htmlFor="email-user">Email</label>
+            {/* Input agora controlado pelo estado */}
+            <input type="email" id="email-user" placeholder="Digite 'admin' para entrar como admin" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="input-group">
-            <label htmlFor="senha">Senha</label>
-            <input type="password" id="senha" placeholder="Digite a sua senha" required />
+            <label htmlFor="senha-user">Senha</label>
+            <input type="password" id="senha-user" placeholder="Qualquer senha" required />
           </div>
-          <div className="options">
-            <div className="remember-me">
-              <input type="checkbox" id="remember" />
-              <label htmlFor="remember">Lembrar minha senha</label>
-            </div>
-            <div className="forgot-password">
-              <a href="#">Esqueci a Senha</a>
-            </div>
-          </div>
-          <button type="submit" className="button login-button">Entrar</button>
+          {/* ... o resto do form ... */}
+          <button type="submit" className="login-button">Entrar</button>
         </form>
-        <div className="links">
-          <button type="button" className="link-button" onClick={onClose}>Voltar</button>
-          <button type="button" className="link-button" onClick={() => {
-            onClose();
-            // Aqui você pode chamar a função para abrir o modal de cadastro se necessário
-          }}>Cadastrar-se</button>
-        </div>
+        {/* ... o resto do modal ... */}
       </div>
     </div>
   );
