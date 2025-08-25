@@ -1,0 +1,149 @@
+/* ========================================= */
+/* 1. ESTILOS GERAIS DA ÁREA ADMIN           */
+/* ========================================= */
+.admin-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.admin-content, .dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 150px;
+}
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.admin-page-header h1 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+
+/* ========================================= */
+/* 2. ESTILOS PARA O DASHBOARD ADMIN         */
+/* ========================================= */
+.welcome-section {
+  margin-bottom: 40px;
+}
+.welcome-text h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+.welcome-text p {
+  font-size: 1.1rem;
+  color: #777;
+  margin: 0;
+}
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.main-card, .small-card {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.main-card:hover, .small-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+.card-image {
+  width: 100%;
+  display: block;
+}
+.card-footer {
+  background-color: white;
+  padding: 20px 25px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+.bottom-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+
+/* ========================================= */
+/* 3. ESTILOS PARA LISTAGEM (TABELAS)        */
+/* ========================================= */
+.admin-table-container {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-table th, .admin-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+.admin-table th {
+  background-color: #f9f7ff;
+  font-family: 'Poppins', sans-serif;
+  color: #555;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+.admin-table td {
+  color: #333;
+}
+.admin-table tbody tr:hover {
+  background-color: #f9f7ff;
+}
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+.action-buttons button {
+  border: none;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+}
+.edit-btn { background-color: #8D7EFB; }
+.delete-btn { background-color: #f44336; }
+.add-new-button {
+  background-color: #8D7EFB;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+.add-new-button:hover {
+  background-color: #7a6ae8;
+}
