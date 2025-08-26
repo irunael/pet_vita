@@ -2,11 +2,18 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 import profileIcon from '../../assets/images/Header/perfilIcon.png';
-import { BsBellFill } from 'react-icons/bs';
 import '../css/Header.css';
+import { BsBellFill, BsChatDots } from 'react-icons/bs'; 
+
+const mockAdminNotifications = [
+    { id: 1, text: "Dr. Carlos Silva atualizou uma consulta.", time: "10 min atrás" },
+    { id: 2, text: "Novo paciente 'Ana Silva' cadastrado na plataforma.", time: "1 hora atrás" },
+    { id: 3, text: "Relatório mensal de Outubro está pronto.", time: "Ontem" },
+];
 
 const HeaderAdmin = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false); // Estado para as notificações
 
   return (
     <header className="header">
@@ -23,9 +30,33 @@ const HeaderAdmin = () => {
       </nav>
 
       <div className="icons-container">
-        <div className="header-icon notification-icon">
-            <BsBellFill size={26} />
-            <span className="notification-badge">1</span>
+        <NavLink to="/admin/chat" className="header-icon">
+            <BsChatDots size={26} />
+        </NavLink>
+        <div className="notification-icon-wrapper">
+            <div 
+                className="header-icon notification-icon" 
+                onClick={() => setShowNotifications(!showNotifications)}
+            >
+                <BsBellFill size={26} />
+                <span className="notification-badge">{mockAdminNotifications.length}</span>
+            </div>
+            
+            {showNotifications && (
+                <div className="notification-dropdown">
+                    <div className="dropdown-header">
+                        <span>Notificações</span>
+                    </div>
+                    <ul className="notification-list">
+                        {mockAdminNotifications.map(notif => (
+                            <li key={notif.id} className="notification-item">
+                                <span className="notification-text">{notif.text}</span>
+                                <span className="notification-time">{notif.time}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
         <div className="profile-icon-container">
           <div className="profile-icon" onClick={() => setShowDropdown(!showDropdown)}>
