@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Adicionar useState
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './css/styles.css';
@@ -7,19 +7,40 @@ import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 const ModalUser = ({ onClose, switchToVet }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(''); // Estado para guardar o email
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email.toLowerCase() === 'admin@petvita.com') {
-      login('admin');
+    setError('');
+    setLoading(true);
+
+    try {
+      const loggedInUser = await login(email, password);
       onClose();
-      navigate('/admin/dashboard');
-    } else {
-      // Lógica de login normal do cliente (simulada)
-      login('client');
-      onClose();
-      // Em um sistema real, aqui iria para a página do cliente
+
+      switch(loggedInUser.role) {
+        case 'ADMIN':
+          navigate('/admin/dashboard');
+          break;
+        case 'VETERINARY':
+          navigate('/vet/dashboard');
+          break;
+        case 'USER':
+          navigate('/');
+          break;
+        default:
+          navigate('/');
+      }
+
+    } catch (err) {
+      setError('E-mail ou senha inválidos. Por favor, tente novamente.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,19 +56,48 @@ const ModalUser = ({ onClose, switchToVet }) => {
           <img src={logo} alt="Pet Vita Logo" />
         </div>
         <form className="form" onSubmit={handleLogin}>
+          {error && <p className="error-message">{error}</p>}
           <div className="input-group">
             <label htmlFor="email-user">Email</label>
-            {/* Input agora controlado pelo estado */}
-            <input type="email" id="email-user" placeholder="Digite 'admin' para entrar como admin" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input 
+              type="email" 
+              id="email-user" 
+              required 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+            />
           </div>
           <div className="input-group">
             <label htmlFor="senha-user">Senha</label>
-            <input type="password" id="senha-user" placeholder="Qualquer senha" required />
+            <input 
+              type="password" 
+              id="senha-user" 
+              required 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+            />
           </div>
-          {/* ... o resto do form ... */}
-          <button type="submit" className="login-button">Entrar</button>
+          
+          {/* ===== SEÇÃO RESTAURADA ===== */}
+          <div className="options">
+            <div className="remember-me">
+              <input type="checkbox" id="remember" />
+              <label htmlFor="remember">Lembrar minha senha</label>
+            </div>
+            <div className="forgot-password">
+              <a href="#">Esqueci a Senha</a>
+            </div>
+          </div>
+          {/* ============================= */}
+
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
         </form>
-        {/* ... o resto do modal ... */}
+        <div className="links">
+          <button type="button" className="link-button" onClick={onClose}>Voltar</button>
+          <button type="button" className="link-button">Cadastrar-se</button>
+        </div>
       </div>
     </div>
   );

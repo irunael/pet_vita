@@ -1,32 +1,70 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import api from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 
-// 1. Cria o Contexto
 const AuthContext = createContext();
 
-// 2. Cria o Provedor do Contexto
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // null = deslogado, {type: 'client'} ou {type: 'vet'}
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Função para simular login
-  const login = (userType) => {
-    console.log(`Simulando login como: ${userType}`);
-    setUser({ type: userType });
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.exp * 1000 > Date.now()) {
+          setUser({
+            email: decodedToken.sub,
+            role: decodedToken.role,
+            id: decodedToken.userId
+          });
+        } else {
+          localStorage.removeItem('authToken');
+        }
+      } catch (error) {
+        console.error("Erro ao decodificar token:", error);
+        localStorage.removeItem('authToken');
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { token } = response.data;
+
+      localStorage.setItem('authToken', token);
+      const decodedToken = jwtDecode(token);
+      
+      const userData = {
+        email: decodedToken.sub,
+        role: decodedToken.role,
+        id: decodedToken.userId
+      };
+
+      setUser(userData);
+      return userData; // Retorna os dados do usuário para o redirecionamento
+    } catch (error) {
+      console.error("Erro no login:", error);
+      throw error;
+    }
   };
 
-  // Função para simular logout
   const logout = () => {
-    console.log('Simulando logout');
     setUser(null);
+    localStorage.removeItem('authToken');
+    window.location.href = '/'; 
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-// 3. Cria um Hook customizado para facilitar o uso do contexto
 export const useAuth = () => {
   return useContext(AuthContext);
 };

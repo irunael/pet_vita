@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink , useNavigate} from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 import profileIcon from '../../assets/images/Header/perfilIcon.png';
 import '../css/Header.css';
 import { BsBellFill, BsChatDots } from 'react-icons/bs'; 
 
-const mockAdminNotifications = [
-    { id: 1, text: "Dr. Carlos Silva atualizou uma consulta.", time: "10 min atrás" },
-    { id: 2, text: "Novo paciente 'Ana Silva' cadastrado na plataforma.", time: "1 hora atrás" },
-    { id: 3, text: "Relatório mensal de Outubro está pronto.", time: "Ontem" },
-];
-
 const HeaderAdmin = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false); // Estado para as notificações
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <header className="header">
       <div className="logo">
-        <img src={logo} alt="Pet Vita Logo" />
+        <NavLink to="/admin/dashboard"><img src={logo} alt="Pet Vita Logo" /></NavLink>
       </div>
       
       <nav className="nav nav-center">
@@ -39,24 +41,9 @@ const HeaderAdmin = () => {
                 onClick={() => setShowNotifications(!showNotifications)}
             >
                 <BsBellFill size={26} />
-                <span className="notification-badge">{mockAdminNotifications.length}</span>
+                <span className="notification-badge">1</span>
             </div>
-            
-            {showNotifications && (
-                <div className="notification-dropdown">
-                    <div className="dropdown-header">
-                        <span>Notificações</span>
-                    </div>
-                    <ul className="notification-list">
-                        {mockAdminNotifications.map(notif => (
-                            <li key={notif.id} className="notification-item">
-                                <span className="notification-text">{notif.text}</span>
-                                <span className="notification-time">{notif.time}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+            {/* O dropdown de notificações continuaria aqui */}
         </div>
         <div className="profile-icon-container">
           <div className="profile-icon" onClick={() => setShowDropdown(!showDropdown)}>
@@ -65,7 +52,7 @@ const HeaderAdmin = () => {
           {showDropdown && (
             <div className="dropdown-menu">
               <NavLink to="/admin/perfil" className="dropdown-item">Meu Perfil</NavLink>
-              <NavLink to="/" className="dropdown-item">Sair</NavLink>
+              <button onClick={handleLogout} className="dropdown-item" style={{border: 'none', width: '100%', textAlign: 'left', background: 'none', cursor: 'pointer'}}>Sair</button>
             </div>
           )}
         </div>
