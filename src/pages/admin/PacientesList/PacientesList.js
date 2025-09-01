@@ -1,21 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
+import api from '../../../services/api';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaSave, FaTimes } from 'react-icons/fa';
 import '../PacientesList/PacientesList.css';
 
-const initialPacientes = [
-    { id: 1, name: 'Carlos Souza', email: 'carlos@email.com', petCount: 1, avatar: 'https://i.pravatar.cc/150?img=60' },
-    { id: 2, name: 'Ana Silva', email: 'ana@email.com', petCount: 2, avatar: 'https://i.pravatar.cc/150?img=31' },
-    { id: 3, name: 'Julia Mendes', email: 'julia@email.com', petCount: 1, avatar: 'https://i.pravatar.cc/150?img=35' },
-];
-
 const PacientesList = () => {
-    const [pacientes, setPacientes] = useState(initialPacientes);
+    const [pacientes, setPacientes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    
     const [editingId, setEditingId] = useState(null);
     const [editFormData, setEditFormData] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     
+    const fetchPacientes = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const params = {};
+            if (searchTerm) params.name = searchTerm;
+            
+            // O endpoint /admin/users busca por nome, mas para listar todos os "pacientes",
+            // teríamos que filtrar pelo 'role' no front-end após a busca.
+            const response = await api.get('/admin/users', { params });
+            // Filtramos para mostrar apenas usuários com a role 'USER'
+            const clientUsers = response.data.filter(user => user.role === 'USER');
+            setPacientes(clientUsers);
+
+        } catch (err) {
+            setError('Falha ao buscar pacientes.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [searchTerm]);
+
+    useEffect(() => {
+        fetchPacientes();
+    }, [fetchPacientes]);
+
     const handleEditClick = (paciente) => {
         setEditingId(paciente.id);
         setEditFormData({ ...paciente });
@@ -25,12 +49,37 @@ const PacientesList = () => {
         const { name, value } = e.target;
         setEditFormData(prev => ({ ...prev, [name]: value }));
     };
-    const handleSaveClick = (id) => {
-        setPacientes(pacientes.map(p => (p.id === id ? editFormData : p)));
-        setEditingId(null);
+
+    const handleSaveClick = async (id) => {
+        try {
+            // O backend espera um DTO específico para update
+            const updateDTO = {
+                username: editFormData.username,
+                email: editFormData.email,
+                phone: editFormData.phone
+            };
+            await api.put(`/admin/users/${id}`, updateDTO);
+            setEditingId(null);
+            fetchPacientes();
+            alert('Paciente atualizado com sucesso!');
+        } catch (err) {
+            alert('Erro ao salvar paciente.');
+            console.error(err);
+        }
     };
 
-    const filteredPacientes = pacientes.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleDelete = async (paciente) => {
+        if (window.confirm(`Tem certeza que deseja excluir ${paciente.username}?`)) {
+            try {
+                await api.delete(`/admin/users/${paciente.id}`);
+                fetchPacientes();
+                alert('Paciente excluído com sucesso!');
+            } catch (err) {
+                alert('Erro ao excluir paciente.');
+                console.error(err);
+            }
+        }
+    };
 
     return (
         <div className="admin-page">
@@ -51,40 +100,47 @@ const PacientesList = () => {
                         />
                     </div>
                 </div>
-                <div className="admin-card-grid">
-                    {filteredPacientes.map(p => (
-                        <div key={p.id} className="admin-card">
-                            {editingId === p.id ? (
-                                <>
-                                    <div className="card-body-admin">
-                                        <div className="form-group-card"><label>Nome do Tutor</label><input type="text" name="name" value={editFormData.name} onChange={handleFormChange} className="card-input" /></div>
-                                        <div className="form-group-card"><label>Email</label><input type="email" name="email" value={editFormData.email} onChange={handleFormChange} className="card-input" /></div>
-                                        <div className="form-group-card"><label>Nº de Pets</label><input type="number" name="petCount" value={editFormData.petCount} onChange={handleFormChange} className="card-input"/></div>
-                                    </div>
-                                    <div className="card-actions-admin">
-                                        <button className="action-button-card cancel" onClick={handleCancelClick}><FaTimes /> Cancelar</button>
-                                        <button className="action-button-card save" onClick={() => handleSaveClick(p.id)}><FaSave /> Salvar</button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="card-header-admin">
-                                        <img src={p.avatar} alt={p.name} className="card-avatar" />
-                                        <span className="card-title">{p.name}</span>
-                                    </div>
-                                    <div className="card-body-admin">
-                                        <p><strong>Email:</strong> {p.email}</p>
-                                        <p><strong>Nº de Pets:</strong> {p.petCount}</p>
-                                    </div>
-                                    <div className="card-actions-admin">
-                                        <button className="action-button-card delete"><FaTrash /> Excluir</button>
-                                        <button className="action-button-card edit" onClick={() => handleEditClick(p)}><FaEdit /> Editar</button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                
+                {loading && <p>Carregando...</p>}
+                {error && <p className="error-message">{error}</p>}
+
+                {!loading && !error && (
+                    <div className="admin-card-grid">
+                        {pacientes.map(p => (
+                            <div key={p.id} className="admin-card">
+                                {editingId === p.id ? (
+                                    <>
+                                        <div className="card-body-admin">
+                                            <div className="form-group-card"><label>Nome do Tutor</label><input type="text" name="username" value={editFormData.username} onChange={handleFormChange} className="card-input" /></div>
+                                            <div className="form-group-card"><label>Email</label><input type="email" name="email" value={editFormData.email} onChange={handleFormChange} className="card-input" /></div>
+                                            <div className="form-group-card"><label>Telefone</label><input type="text" name="phone" value={editFormData.phone} onChange={handleFormChange} className="card-input"/></div>
+                                        </div>
+                                        <div className="card-actions-admin">
+                                            <button className="action-button-card cancel" onClick={handleCancelClick}><FaTimes /> Cancelar</button>
+                                            <button className="action-button-card save" onClick={() => handleSaveClick(p.id)}><FaSave /> Salvar</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="card-header-admin">
+                                            {/* O backend não provê avatar para usuário, usamos um placeholder */}
+                                            <div className="card-avatar-placeholder">{p.username.charAt(0)}</div>
+                                            <span className="card-title">{p.username}</span>
+                                        </div>
+                                        <div className="card-body-admin">
+                                            <p><strong>Email:</strong> {p.email}</p>
+                                            <p><strong>Telefone:</strong> {p.phone}</p>
+                                        </div>
+                                        <div className="card-actions-admin">
+                                            <button className="action-button-card delete" onClick={() => handleDelete(p)}><FaTrash /> Excluir</button>
+                                            <button className="action-button-card edit" onClick={() => handleEditClick(p)}><FaEdit /> Editar</button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </main>
             <Footer />
         </div>

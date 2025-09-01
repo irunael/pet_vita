@@ -1,19 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 
-// Reutilizando as mesmas imagens do Vet, você pode trocar depois se quiser
+// Imagens para os cards
 import mainImage from '../../../assets/images/Vet/image 56.png';
 import cardImage1 from '../../../assets/images/Vet/Group 105.png';
 import cardImage2 from '../../../assets/images/Vet/Group 106.png';
 
-import '../Dashboard/Dashboard'; // Usando o CSS unificado da área Admin
+import './Dashboard.css';
 
 const AdminDashboard = () => {
     return (
         <div className="admin-page">
-            <HeaderAdmin />
+            {/* O Header é renderizado globalmente pelo App.js, então não é mais necessário aqui */}
             <main className="dashboard-content">
                 <section className="welcome-section">
                     <div className="welcome-text">

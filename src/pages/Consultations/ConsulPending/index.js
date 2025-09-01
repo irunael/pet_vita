@@ -1,61 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import perfil_pet from '../../../assets/images/Pets/Perfil_pet.png';
-import Header from '../../../components/Header_com_cadastro';
+import { useAuth } from '../../../context/AuthContext';
+import api from '../../../services/api';
 import Footer from '../../../components/Footer';
 import './css/styles.css';
 
 const ConsulPending = () => {
-  // Dados mockados da consulta - normalmente viriam de uma API ou estado global
-  const consultaSelecionada = {
-    id: 1,
-    pet: 'Rex',
-    petImage: perfil_pet, // Usando a mesma imagem que já está sendo importada
-    service: 'Consulta Clínica Geral',
-    doctor: 'Dr. Carlos Silva - Clínico Geral',
-    date: '2024-08-15T10:30',
-    status: 'Pendente',
-    observations: 'O pet está apresentando sintomas de alergia'
-  };
+    const [allConsultas, setAllConsultas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const { user } = useAuth();
+    
+    // Simula a troca de abas no front-end
+    const [activeTab, setActiveTab] = useState('pendentes');
 
-  return (
-    <div className="pet-profile-page">
-      <Header />
-      <Link to="/agendar-consulta" className="add-pet-button">
-        Marcar consulta
-      </Link>
-            
-      <div className="pet-profile-container">
-        <div className="status-section">
-          <div className="status-buttons">
-            <button className="status-button pendentes-button active">Pendentes</button>
-            <Link to="/consultas/concluidas" className="status-button aceitas-button">Concluídas</Link>
-            <Link to="/consultas/calendario" className="status-button calendario-button">Calendário</Link>
-          </div>
+    useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        };
+        const fetchConsultas = async () => {
+            setLoading(true);
+            try {
+                const response = await api.get('/consultas/my-consultations');
+                setAllConsultas(response.data);
+            } catch (err) {
+                setError('Falha ao buscar suas consultas.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConsultas();
+    }, [user]);
+
+    const pendentes = allConsultas.filter(c => c.status === 'PENDENTE' || c.status === 'AGENDADA');
+    const concluidas = allConsultas.filter(c => c.status === 'FINALIZADA' || c.status === 'CANCELADA' || c.status === 'RECUSADA');
+
+    const dataToRender = activeTab === 'pendentes' ? pendentes : concluidas;
+
+    return (
+        <div className="pet-profile-page">
+            <main className="main-content-consultation">
+                <div className="consultation-header">
+                    <h1>Minhas Consultas</h1>
+                    <Link to="/agendar-consulta" className="action-button-primary">
+                        Agendar Nova Consulta
+                    </Link>
+                </div>
+                <div className="pet-profile-container">
+                    <div className="status-section">
+                        <div className="status-buttons">
+                            <button className={`status-button ${activeTab === 'pendentes' ? 'active' : ''}`} onClick={() => setActiveTab('pendentes')}>Pendentes</button>
+                            <button className={`status-button ${activeTab === 'concluidas' ? 'active' : ''}`} onClick={() => setActiveTab('concluidas')}>Concluídas</button>
+                        </div>
+                    </div>
+                    {loading && <p>Carregando...</p>}
+                    {error && <p className="error-message">{error}</p>}
+                    {!loading && !error && dataToRender.map(c => (
+                        <div key={c.id} className="pet-card">
+                            <div className="pet-info">
+                                <h3 className="pet-name">{c.petName}</h3>
+                                <span>{c.speciality} com {c.veterinaryName}</span>
+                                <span>{new Date(c.consultationdate + 'T' + c.consultationtime).toLocaleString('pt-BR')}</span>
+                            </div>
+                            <span className={`status-badge ${c.status.toLowerCase()}`}>{c.status}</span>
+                        </div>
+                    ))}
+                </div>
+            </main>
+            <Footer />
         </div>
-        <div className="pet-card">
-          <div className="pet-photo-container">
-            <img src={perfil_pet} alt="Foto do Rex" className="pet-photo" />
-          </div>
-          <div className="pet-info">
-            <div className="pet-details">
-              <h3 className="pet-name">Rex</h3>
-              <span className="pet-gender">Macho</span>
-            </div>
-          </div>
-          <Link 
-            to="/detalhes-consulta" 
-            state={{ consulta: consultaSelecionada }}
-            className="details-button"
-          >
-            Detalhes
-            <span className="arrow">›</span>
-          </Link>
-        </div>
-      </div>
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default ConsulPending;

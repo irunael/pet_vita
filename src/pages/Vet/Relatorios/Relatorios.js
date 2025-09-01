@@ -1,79 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderVet from '../../../components/HeaderVet/HeaderVet';
 import Footer from '../../../components/Footer';
+import api from '../../../services/api';
 import { FaChartBar, FaUserPlus, FaFileMedicalAlt } from 'react-icons/fa';
 import '../css/styles.css';
 
 const VetRelatorios = () => {
+    const [reportData, setReportData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const handleGenerateReport = () => {
-    alert('Gerando relatório completo... Em um sistema real, isso iniciaria o download de um arquivo PDF.');
-  };
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
+                const response = await api.get('/veterinary/me/monthly-report');
+                setReportData(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar relatório", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReport();
+    }, []);
 
-  return (
-    <div className="vet-page">
-      <HeaderVet />
-      <main className="vet-content">
-        <div className="vet-page-header">
-          <h1>Relatórios</h1>
-          <p>Acompanhe sua performance e o crescimento da sua base de pacientes.</p>
+    if (loading) {
+        return <div>Carregando relatório...</div>;
+    }
+    
+    return (
+        <div className="vet-page">
+            <HeaderVet />
+            <main className="vet-content">
+                <div className="vet-page-header">
+                    <h1>Relatórios</h1>
+                    <p>Sua performance neste mês ({reportData?.month}/{reportData?.year})</p>
+                </div>
+
+                <div className="stats-cards-grid">
+                    <div className="stat-card">
+                        <div className="stat-icon consultations"><FaFileMedicalAlt /></div>
+                        <div className="stat-info">
+                            <span className="stat-number">{reportData?.totalConsultations || 0}</span>
+                            <span className="stat-label">Consultas no Mês</span>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-icon new-patients"><FaUserPlus /></div>
+                        <div className="stat-info">
+                            <span className="stat-number">{reportData?.patientsAttended?.length || 0}</span>
+                            <span className="stat-label">Pacientes Atendidos</span>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-icon performance"><FaChartBar /></div>
+                        <div className="stat-info">
+                            <span className="stat-number">{reportData?.finalizedConsultations || 0}</span>
+                            <span className="stat-label">Consultas Finalizadas</span>
+                        </div>
+                    </div>
+                </div>
+                {/* ... (resto da página de relatórios) ... */}
+            </main>
+            <Footer />
         </div>
-
-        <div className="stats-cards-grid">
-          <div className="stat-card">
-            <div className="stat-icon consultations">
-              <FaFileMedicalAlt />
-            </div>
-            <div className="stat-info">
-              <span className="stat-number">42</span>
-              <span className="stat-label">Consultas no Mês</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon new-patients">
-              <FaUserPlus />
-            </div>
-            <div className="stat-info">
-              <span className="stat-number">9</span>
-              <span className="stat-label">Novos Pacientes</span>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon performance">
-              <FaChartBar />
-            </div>
-            <div className="stat-info">
-              <span className="stat-number">85%</span>
-              <span className="stat-label">Taxa de Conclusão</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="report-section">
-          <h3>Consultas por Período</h3>
-          <p>Em uma implementação real, aqui seria exibido um gráfico interativo com o número de consultas ao longo do tempo. Para isso, seria necessário instalar uma biblioteca como <strong>Chart.js</strong> e <strong>react-chartjs-2</strong>.</p>
-          <div className="mock-chart">
-            <div className="bar" style={{ height: '60%' }}><span className="bar-label">Semana 1</span></div>
-            <div className="bar" style={{ height: '80%' }}><span className="bar-label">Semana 2</span></div>
-            <div className="bar" style={{ height: '50%' }}><span className="bar-label">Semana 3</span></div>
-            <div className="bar" style={{ height: '90%' }}><span className="bar-label">Semana 4</span></div>
-          </div>
-        </div>
-
-        {/* ===== BOTÃO MOVIDO PARA CÁ (ABAIXO DO CARD DE GRÁFICO) ===== */}
-        <div className="report-actions">
-          <button className="generate-report-button" onClick={handleGenerateReport}>
-            Gerar Relatório
-          </button>
-        </div>
-        {/* ========================================================== */}
-
-      </main>
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default VetRelatorios;
