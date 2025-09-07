@@ -22,6 +22,7 @@ const ModalUser = ({ onClose, switchToVet }) => {
       const loggedInUser = await login(email, password);
       onClose();
 
+      // Redireciona com base na 'role' do usuário
       switch(loggedInUser.role) {
         case 'ADMIN':
           navigate('/admin/dashboard');
@@ -30,7 +31,7 @@ const ModalUser = ({ onClose, switchToVet }) => {
           navigate('/vet/dashboard');
           break;
         case 'USER':
-          navigate('/');
+          navigate('/'); // Usuário comum vai para a Home logado
           break;
         default:
           navigate('/');
@@ -77,8 +78,6 @@ const ModalUser = ({ onClose, switchToVet }) => {
               onChange={(e) => setPassword(e.target.value)} 
             />
           </div>
-          
-          {/* ===== SEÇÃO RESTAURADA ===== */}
           <div className="options">
             <div className="remember-me">
               <input type="checkbox" id="remember" />
@@ -88,8 +87,6 @@ const ModalUser = ({ onClose, switchToVet }) => {
               <a href="#">Esqueci a Senha</a>
             </div>
           </div>
-          {/* ============================= */}
-
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>

@@ -10,42 +10,14 @@ import HeaderVet from './components/HeaderVet/HeaderVet.js';
 import HeaderAdmin from './components/HeaderAdmin/HeaderAdmin.js';
 
 // Componente interno para controlar o Header
-const AppContent = () => {
-  const { user } = useAuth(); // Pega o usuário do contexto
-  const location = useLocation();
-
-  const renderHeader = () => {
-    if (user) {
-      switch (user.role) {
-        case 'ADMIN':
-          return <HeaderAdmin />;
-        case 'VETERINARY':
-          return <HeaderVet />;
-        case 'USER':
-          return <HeaderComCadastro />;
-        default:
-          return <HeaderSemCadastro />;
-      }
-    }
-    return <HeaderSemCadastro />;
-  };
-
-  return (
-    <div className="App">
-      {renderHeader()}
-      <AppRoutes />
-      {/* O Footer pode ser global aqui, ou mantido em cada página se preferir */}
-      {/* <Footer /> */}
-    </div>
-  );
-};
-
-// O App agora apenas provê o contexto e o router
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <AppContent />
+        <div className="App">
+          {/* O HeaderController foi removido daqui */}
+          <AppRoutes />
+        </div>
       </BrowserRouter>
     </AuthProvider>
   );

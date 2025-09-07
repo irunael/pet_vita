@@ -4,7 +4,7 @@ import api from '../../services/api'; // Importamos nosso serviço de API
 import './css/styles.css';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 
-const ModalRegisterUser = ({ onClose, switchToVet }) => {
+const ModalRegisterUser = ({ onClose, switchToVet, openLogin }) => {
   const { login } = useAuth();
 
   // Estados para todos os campos do formulário
@@ -92,7 +92,10 @@ const ModalRegisterUser = ({ onClose, switchToVet }) => {
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
-        {/* ... */}
+        <div className="links">
+          <button type="button" className="link-button" onClick={onClose}>Voltar</button>
+          <button type="button" className="link-button" onClick={openLogin}>Já tenho conta</button>
+        </div>
       </div>
     </div>
   );

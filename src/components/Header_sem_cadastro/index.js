@@ -8,51 +8,27 @@ import ModalRegisterUser from '../../components/ModalRegisterUser';
 import ModalRegisterVet from '../../components/ModalRegisterVet';
 import './css/styles.css';
 
-const Header = () => {
-  const [activeModal, setActiveModal] = useState(null); // null, 'user', 'vet'
-  const [activeRegisterModal, setActiveRegisterModal] = useState(null); // null, 'user', 'vet'
+const Header_sem_cadastro = () => {
+  const [activeModal, setActiveModal] = useState(null);
 
-  // Fecha todos os modais
-  const closeAllModals = () => {
-    setActiveModal(null);
-    setActiveRegisterModal(null);
-  };
+  const openUserModal = () => setActiveModal('user');
+  const openVetModal = () => setActiveModal('vet');
+  const openRegisterUserModal = () => setActiveModal('register-user');
+  const openRegisterVetModal = () => setActiveModal('register-vet');
+  const closeModal = () => setActiveModal(null);
 
-  // Login - Usuário
-  const openUserModal = () => {
-    setActiveModal('user');
-    setActiveRegisterModal(null);
-  };
-
-  // Login - Veterinário
-  const openVetModal = () => {
-    setActiveModal('vet');
-    setActiveRegisterModal(null);
-  };
-
-  // Cadastro - Usuário
-  const openRegisterUserModal = () => {
-    setActiveRegisterModal('user');
-    setActiveModal(null);
-  };
-
-  // Cadastro - Veterinário
-  const openRegisterVetModal = () => {
-    setActiveRegisterModal('vet');
-    setActiveModal(null);
-  };
+  const switchToVet = () => setActiveModal('vet');
+  const switchToUser = () => setActiveModal('user');
 
   return (
     <>
       <header className="header">
         <div className="logo">
-          <img src={logo} alt="Pet Vita Logo" />
+          <Link to="/"><img src={logo} alt="Pet Vita Logo" /></Link>
         </div>
         
-        <nav className="nav">
-          <Link to="/" className="nav_link active">Home</Link>
-          <Link to="/consultas" className="nav_link">Consultas</Link>
-          <Link to="/pets" className="nav_link">Pets</Link>
+        <nav className="nav nav-center">
+          <Link to="/" className="nav_link">Home</Link>
           <Link to="/app" className="nav_link">App</Link>
           <Link to="/sobre-nos" className="nav_link">Saiba Mais</Link>
         </nav>
@@ -63,44 +39,31 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Modais renderizados usando Portal */}
+      {/* Renderização dos modais */}
       {activeModal === 'user' && ReactDOM.createPortal(
         <ModalUser 
-          onClose={closeAllModals}
-          switchToVet={openVetModal}
-        />,
+          onClose={closeModal} 
+          switchToVet={switchToVet} 
+          openRegister={openRegisterUserModal}
+        />, 
         document.body
       )}
-
+      {activeModal === 'register-user' && ReactDOM.createPortal(
+        <ModalRegisterUser 
+          onClose={closeModal} 
+          switchToVet={openRegisterVetModal} 
+          openLogin={openUserModal}
+        />, 
+        document.body
+      )}
       {activeModal === 'vet' && ReactDOM.createPortal(
-        <ModalVet 
-          onClose={closeAllModals}
-          switchToUser={openUserModal}
-        />,
-        document.body
+        <ModalVet onClose={closeModal} switchToUser={switchToUser} />, document.body
       )}
-
-      {activeRegisterModal === 'user' && ReactDOM.createPortal(
-        <div className="modal active" onClick={closeAllModals}>
-          <ModalRegisterUser 
-            onClose={closeAllModals}
-            switchToVet={openRegisterVetModal}
-          />
-        </div>,
-        document.body
-      )}
-
-      {activeRegisterModal === 'vet' && ReactDOM.createPortal(
-        <div className="modal active" onClick={closeAllModals}>
-          <ModalRegisterVet 
-            onClose={closeAllModals}
-            switchToUser={openRegisterUserModal}
-          />
-        </div>,
-        document.body
+      {activeModal === 'register-vet' && ReactDOM.createPortal(
+        <ModalRegisterVet onClose={closeModal} switchToUser={openRegisterUserModal} />, document.body
       )}
     </>
   );
 };
 
-export default Header;
+export default Header_sem_cadastro;

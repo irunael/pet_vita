@@ -14,11 +14,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const decodedToken = jwtDecode(token);
         if (decodedToken.exp * 1000 > Date.now()) {
-          setUser({
-            email: decodedToken.sub,
-            role: decodedToken.role,
-            id: decodedToken.userId
-          });
+          // A mesma lógica de limpeza da role é aplicada aqui
+          const userRole = decodedToken.role.replace('ROLE_', '');
+          setUser({ email: decodedToken.sub, role: userRole, id: decodedToken.userId });
         } else {
           localStorage.removeItem('authToken');
         }
@@ -37,15 +35,22 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('authToken', token);
       const decodedToken = jwtDecode(token);
+
+      // Log para nos ajudar a ver o que o back-end está enviando
+      console.log("TOKEN DECODIFICADO:", decodedToken);
+
+      // ===== CORREÇÃO IMPORTANTE =====
+      // Remove o prefixo "ROLE_" que o Spring Security adiciona (ex: "ROLE_ADMIN" vira "ADMIN")
+      const userRole = decodedToken.role.replace('ROLE_', '');
       
       const userData = {
         email: decodedToken.sub,
-        role: decodedToken.role,
+        role: userRole, // Usamos a role já corrigida
         id: decodedToken.userId
       };
 
       setUser(userData);
-      return userData; // Retorna os dados do usuário para o redirecionamento
+      return userData;
     } catch (error) {
       console.error("Erro no login:", error);
       throw error;
