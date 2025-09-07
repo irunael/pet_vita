@@ -1,159 +1,129 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import Header from '../../../components/Header_com_cadastro';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import HeaderComCadastro from '../../../components/Header_com_cadastro'; // <-- LINHA QUE ESTAVA FALTANDO
 import Footer from '../../../components/Footer';
-import './css/styles.css';
+import api from '../../../services/api';
+import { useAuth } from '../../../context/AuthContext';
 import { FaStar, FaRegStar } from 'react-icons/fa';
+import '../css/styles.css'; // Verifique o caminho para o seu CSS
+import profileIcon from '../../../assets/images/Perfil/perfilIcon.png';
 
 const ConsulCompleteDetails = () => {
-  const location = useLocation();
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
+    const { consultaId } = useParams();
+    const [consulta, setConsulta] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-  const consulta = location.state?.consulta || {
-    id: 1,
-    pet: 'Rex',
-    petImage: 'https://example.com/rex.jpg',
-    service: 'Consulta Clínica Geral',
-    doctor: 'Felipe A.',
-    doctorImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-    doctorSpecialty: 'Clínico Geral',
-    date: '2023-11-15T10:30',
-    status: 'Concluída',
-    observations: 'O pet está apresentando sintomas de alergia',
-    locationName: 'Pet+ - Cotia',
-    locationAddress: 'Av. José Odorizzi, 1555 - Cotia/SP'
-  };
-  
-  const handleGenerateReport = () => {
-    alert('Gerando relatório médico...');
-    // Aqui iria a lógica para gerar e baixar um PDF, por exemplo.
-  };
+    // Estados para a avaliação
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
+    const [comment, setComment] = useState('');
 
-  return (
-    <div className="pets-details-page">
-      <Header />
-      
-      <div className="welcome-section">
-        <h1 className="welcome-title">Detalhes da Consulta</h1>
-        <p className="consul-status">{consulta.status}</p>
-      </div>
-      
-      <div className="pet-details-wrapper">
-        <div className="pet-details-container">
-          <div className="avatar-display">
-            <img 
-              src={consulta.petImage} 
-              alt={consulta.pet} 
-              className="pet-avatar"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-              }}
-            />
-          </div>
+    useEffect(() => {
+        const fetchConsulta = async () => {
+            setLoading(true);
+            try {
+                const response = await api.get(`/consultas/${consultaId}`);
+                setConsulta(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar detalhes da consulta", error);
+                setError("Não foi possível carregar os detalhes da consulta.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConsulta();
+    }, [consultaId]);
 
-          <div className="details-form">
-            {/* ====== CAMPOS DE DETALHES ADICIONADOS ====== */}
-            <div className="form-row">
-              <div className="form-group">
-                <label>Pet</label>
-                <div className="detail-value">{consulta.pet}</div>
-              </div>
-              <div className="form-group">
-                <label>Serviço</label>
-                <div className="detail-value">{consulta.service}</div>
-              </div>
+    const handleSubmitRating = async () => {
+        if (rating === 0) {
+            alert('Por favor, selecione de 1 a 5 estrelas.');
+            return;
+        }
+        
+        try {
+            // O DTO da sua API precisa do ID do veterinário
+            // Supondo que a API de consulta retorne o `veterinaryId`
+            const veterinaryId = consulta?.veterinaryId; 
+            if (!veterinaryId) {
+                throw new Error("ID do veterinário não encontrado na consulta.");
+            }
+
+            await api.post(`/veterinary/${veterinaryId}/rate`, { rating, comment });
+            alert('Avaliação enviada com sucesso!');
+        } catch (error) {
+            console.error("Erro ao enviar avaliação:", error);
+            alert('Falha ao enviar avaliação.');
+        }
+    };
+
+    if (loading) return (
+        <>
+            <HeaderComCadastro />
+            <p style={{paddingTop: '150px', textAlign: 'center'}}>Carregando detalhes...</p>
+            <Footer />
+        </>
+    );
+
+    if (error) return (
+        <>
+            <HeaderComCadastro />
+            <p className="error-message" style={{margin: '150px auto'}}>{error}</p>
+            <Footer />
+        </>
+    );
+
+    return (
+        <div className="pets-details-page">
+            <HeaderComCadastro />
+            <div className="welcome-section">
+                <h1 className="welcome-title">Detalhes da Consulta</h1>
+                <p className="consul-status">{consulta?.status}</p>
             </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Médico</label>
-                <div className="detail-value">{consulta.doctor}</div>
-              </div>
-              <div className="form-group">
-                <label>Data e Hora</label>
-                <div className="detail-value">
-                  {new Date(consulta.date).toLocaleString('pt-BR')}
+            <div className="pet-details-wrapper">
+                <div className="pet-details-container">
+                    {/* ... JSX dos detalhes da consulta ... */}
+                    <div className="doctor-section">
+                        <h3 className="rating-title">Avalie o Doutor</h3>
+                        <div className="doctor-rating-container">
+                            <div className="doctor-info">
+                                {/* Supondo que a API retorne a imagem do doutor */}
+                                <img src={consulta?.doctorImageUrl || profileIcon} alt={consulta?.veterinaryName} className="doctor-avatar"/>
+                                <div className="doctor-details">
+                                    <h4>{consulta?.veterinaryName}</h4>
+                                    <p>{consulta?.speciality}</p>
+                                </div>
+                            </div>
+                            <div className="rating-controls">
+                                <div className="stars">
+                                {[...Array(5)].map((star, index) => {
+                                    const ratingValue = index + 1;
+                                    return (
+                                        <button
+                                        type="button" key={index} className="star-button"
+                                        onClick={() => setRating(ratingValue)}
+                                        onMouseEnter={() => setHover(ratingValue)}
+                                        onMouseLeave={() => setHover(0)}
+                                        >
+                                        {ratingValue <= (hover || rating) ? <FaStar className="star filled" /> : <FaRegStar className="star" />}
+                                        </button>
+                                    );
+                                })}
+                                </div>
+                                <button className="submit-rating" onClick={handleSubmitRating}>
+                                    Enviar Avaliação
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                     <div className="details-actions">
+                        <Link to="/consultas" className="back-button">Voltar</Link>
+                    </div>
                 </div>
-              </div>
             </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Endereço</label>
-                <div className="detail-value">{consulta.locationAddress}</div>
-              </div>
-              {consulta.observations && (
-                <div className="form-group">
-                  <label>Observações</label>
-                  <div className="detail-value">{consulta.observations}</div>
-                </div>
-              )}
-            </div>
-            {/* ============================================== */}
-
-
-            {/* Seção de Avaliação do Doutor */}
-            <div className="doctor-section">
-              <h3 className="rating-title">Avalie o Doutor</h3>
-              <div className="doctor-rating-container">
-                <div className="doctor-info">
-                  <img 
-                    src={consulta.doctorImage} 
-                    alt={consulta.doctor} 
-                    className="doctor-avatar"
-                  />
-                  <div className="doctor-details">
-                    <h4>{consulta.doctor}</h4>
-                    <p>{consulta.doctorSpecialty}</p>
-                  </div>
-                </div>
-                <div className="rating-controls">
-                  <div className="stars">
-                    {[...Array(5)].map((star, index) => {
-                      const ratingValue = index + 1;
-                      return (
-                        <button
-                          type="button"
-                          key={index}
-                          className="star-button"
-                          onClick={() => setRating(ratingValue)}
-                          onMouseEnter={() => setHover(ratingValue)}
-                          onMouseLeave={() => setHover(0)}
-                        >
-                          {ratingValue <= (hover || rating) ? (
-                            <FaStar className="star filled" />
-                          ) : (
-                            <FaRegStar className="star" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button className="submit-rating">Enviar Avaliação</button>
-                </div>
-              </div>
-            </div>
-            
-            {/* ====== NOVO BOTÃO DE RELATÓRIO ADICIONADO ====== */}
-            <div className="report-section">
-                <button className="report-button" onClick={handleGenerateReport}>
-                    Gerar relatório médico
-                </button>
-            </div>
-            {/* =============================================== */}
-
-            <div className="details-actions">
-              <Link to="/consultas/concluidas" className="back-button">Voltar</Link>
-            </div>
-          </div>
+            <Footer />
         </div>
-      </div>
-
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default ConsulCompleteDetails;

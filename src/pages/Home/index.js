@@ -1,19 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import pet1 from '../../assets/images/Home/Pet1.png'; 
 import pet2 from '../../assets/images/Home/Pet2.png'; 
 import celular from '../../assets/images/Home/Celular.png'; 
 import gato_maltratado from '../../assets/images/Home/Gato_mal_tratado.jpg'; 
-import pontos from '../../assets/images/Home/Pontos.png';
-import Header from '../../components/Header_sem_cadastro'; 
+import pontos from '../../assets/images/Home/Pontos.png'; 
 import Footer from '../../components/Footer';
 import './css/styles.css';
 
+import HeaderSemCadastro from '../../components/Header_sem_cadastro';
+import HeaderComCadastro from '../../components/Header_com_cadastro'; 
+
+
 const Home = () => {
   const navigate = useNavigate();
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const carrosselRef = useRef(null);
-  
+  const { user } = useAuth(); // Verifica se há um usuário logado
+
   const videos = [
     "takn-e-Ug7E",
     "4QxjNX-8k7c",
@@ -22,8 +26,11 @@ const Home = () => {
 
   useEffect(() => {
     const carrossel = carrosselRef.current;
+    if (!carrossel) return;
+
     const btnAnterior = document.querySelector('.anterior');
     const btnProximo = document.querySelector('.proximo');
+    if (!btnAnterior || !btnProximo) return;
 
     let indiceAtual = 0;
 
@@ -51,7 +58,6 @@ const Home = () => {
     };
   }, []);
 
-  // Função para navegar para a página Sobre Nós
   const handleSobreNosClick = () => {
     navigate('/sobre-nos');
     window.scrollTo(0, 0);
@@ -59,7 +65,8 @@ const Home = () => {
 
   return (
     <div className="app">
-      <Header />
+      {/* Renderização Condicional do Header */}
+      { user ? <HeaderComCadastro /> : <HeaderSemCadastro /> }
       
       <div id="divulgacao">
         <div id="cara">
@@ -127,7 +134,6 @@ const Home = () => {
                 <br></br>
                 <p>Conheça um pouco mais sobre nossa empresa</p>
               </div>
-              {/* Botão conectado à página Sobre Nós */}
               <button onClick={handleSobreNosClick}>
                 Clique aqui
               </button>
@@ -136,16 +142,11 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Seção de Vídeos */}
       <div id="quadro_imagens">
         <div id="texto_quadro_imagens">
           <div className="info_content_container">
             <h4>Cuidado</h4>
-            <p>Na Pet Vita, acreditamos que os pets são more do que animais de estimação — são membros da família. Por isso, 
-              oferecemos cuidados especializados para garantir que seu amigo peludo tenha uma vida feliz, saudável e cheia de carinho. 
-              Com uma equipe de profissionais apaixonados por animais, serviços personalizados e tecnologia de ponta, estamos aqui para cuidar do 
-              seu pet em todas as fases da vida. Desde consultas veterinárias até dicas de bem-estar, na Pet Vita, seu pet encontra tudo o que 
-              precisa para brilhar. Porque cuidar do seu pet é cuidar da sua alegria.</p>
+            <p>Na Pet Vita, acreditamos que os pets são mais do que animais de estimação — são membros da família. Por isso, oferecemos cuidados especializados para garantir que seu amigo peludo tenha uma vida feliz, saudável e cheia de carinho. Com uma equipe de profissionais apaixonados por animais, serviços personalizados e tecnologia de ponta, estamos aqui para cuidar do seu pet em todas as fases da vida. Desde consultas veterinárias até dicas de bem-estar, na Pet Vita, seu pet encontra tudo o que precisa para brilhar. Porque cuidar do seu pet é cuidar da sua alegria.</p>
           </div>
         </div>
         <div id="videos">
@@ -167,7 +168,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Depoimento */}
       <div id="card_sentimento">
         <div id="card_sentimento_imagem">
           <img src={gato_maltratado} alt="Gato sendo cuidado" />
@@ -175,12 +175,7 @@ const Home = () => {
         <div id="card_sentimento_texto">
           <div className="info_content_container">
             <h4>Cada animal merece uma segunda chance.</h4>
-            <p>A imagem ao lado mostra um gatinho machucado, com um olhar que expressa dor, mas também esperança. 
-              É um lembrete poderoso de que nossos amigos de quatro patas dependem de nós para receberem os cuidados que precisam. 
-              Eles não podem falar, mas seus olhos e gestos nos mostram quando algo não está bem. Cuidar de um animal é um ato de amor 
-              e responsabilidade. Seja para tratar uma ferida, aliviar uma dor ou simplesmente garantir que eles estejam saudáveis, 
-              cada gesto faz a diferença na vida deles. Eles nos dão amor incondicional, e nós devemos retribuir com atenção, carinho e dedicação.
-              <span> Porque um animal saudável é um animal feliz, e um animal feliz enche nossa vida de alegria.</span></p>
+            <p>A imagem ao lado mostra um gatinho machucado, com um olhar que expressa dor, mas também esperança. É um lembrete poderoso de que nossos amigos de quatro patas dependem de nós para receberem os cuidados que precisam. Eles não podem falar, mas seus olhos e gestos nos mostram quando algo não está bem. Cuidar de um animal é um ato de amor e responsabilidade. Seja para tratar uma ferida, aliviar uma dor ou simplesmente garantir que eles estejam saudáveis, cada gesto faz a diferença na vida deles. Eles nos dão amor incondicional, e nós devemos retribuir com atenção, carinho e dedicação. <span> Porque um animal saudável é um animal feliz, e um animal feliz enche nossa vida de alegria.</span></p>
           </div>
         </div>
       </div>

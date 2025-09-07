@@ -249,3 +249,44 @@
 .arrow {
   font-size: 1.2rem;
 }
+
+.main-content-consultation h1 {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.consultas-list-container {
+    width: 100%;
+}
+
+.pet-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.add-consulta-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Espaçamento acima do botão */
+    padding-top: 20px;
+    border-top: 1px solid #dcd6f7;
+}
+
+.status-buttons {
+    margin-bottom: 20px;
+}
+
+.details-form { display: flex; flex-direction: column; gap: 20px; }
+.detail-value.long-text { min-height: 80px; white-space: pre-wrap; }
+.info-field.editable { background-color: #fff; border-color: #B77EFF; }
+
+/* Estilos para os botões de ação */
+.details-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #dcd6f7; }
+.edit-button, .save-button, .decline-button, .cancel-edit-button { padding: 12px 25px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.edit-button { background-color: #007bff; color: white; }
+.save-button { background-color: #28a745; color: white; }
+.decline-button { background-color: #f44336; color: white; }
+.cancel-edit-button { background-color: #6c757d; color: white; }

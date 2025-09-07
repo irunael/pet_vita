@@ -1,109 +1,116 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import Header from '../../../components/Header_com_cadastro';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import HeaderComCadastro from '../../../components/Header_com_cadastro';
 import Footer from '../../../components/Footer';
-import './css/styles.css'; // Caminho do CSS corrigido
+import api from '../../../services/api';
+import './css/styles.css';
 
 const ConsulDetails = () => {
-  const location = useLocation();
-  const consulta = location.state?.consulta || {
-    id: 1,
-    pet: 'Rex',
-    petImage: 'https://example.com/rex.jpg',
-    service: 'Consulta Clínica Geral',
-    doctor: 'Dr. Carlos Silva - Clínico Geral',
-    date: '2023-11-15T10:30',
-    status: 'Pendente',
-    observations: 'O pet está apresentando sintomas de alergia',
-    locationName: 'Pet+ - Cotia',
-    locationAddress: 'Av. José Odorizzi, 1555 - Cotia/SP'
-  };
+    const { consultaId } = useParams();
+    const navigate = useNavigate();
+    
+    const [consulta, setConsulta] = useState(null);
+    const [editData, setEditData] = useState({});
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-  const handleCancel = () => {
-    if (window.confirm('Tem certeza que deseja cancelar esta consulta?')) {
-        console.log('Consulta cancelada:', consulta.id);
-        alert('Consulta cancelada com sucesso!');
-    }
-  };
+    useEffect(() => {
+        const fetchConsulta = async () => {
+            if (!consultaId) return;
+            try {
+                const response = await api.get(`/consultas/${consultaId}`);
+                setConsulta(response.data);
+                setEditData(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar detalhes da consulta", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConsulta();
+    }, [consultaId]);
+    
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditData(prev => ({...prev, [name]: value}));
+    };
 
-  return (
-    <div className="pets-details-page">
-      <Header />
-      
-      <div className="welcome-section">
-        <h1 className="welcome-title">Detalhes da Consulta</h1>
-        <p className="consul-status">{consulta.status}</p>
-      </div>
-      
-      <div className="pet-details-wrapper">
-        <div className="pet-details-container">
-          <div className="avatar-display">
-            <img 
-              src={consulta.petImage} 
-              alt={consulta.pet} 
-              className="pet-avatar"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-              }}
-            />
-          </div>
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.put(`/consultas/${consultaId}`, editData);
+            setConsulta(response.data);
+            setIsEditing(false);
+            alert('Consulta atualizada com sucesso!');
+        } catch (error) {
+            alert('Erro ao atualizar a consulta.');
+            console.error(error);
+        }
+    };
 
-          <div className="details-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Pet</label>
-                <div className="detail-value">{consulta.pet}</div>
-              </div>
-              <div className="form-group">
-                <label>Serviço</label>
-                <div className="detail-value">{consulta.service}</div>
-              </div>
+    const handleCancelConsultation = async () => {
+        if (window.confirm('Tem certeza que deseja cancelar esta consulta?')) {
+            try {
+                await api.post(`/consultas/${consultaId}/cancel`);
+                alert('Consulta cancelada com sucesso.');
+                navigate('/consultas');
+            } catch (error) {
+                alert('Não foi possível cancelar a consulta.');
+                console.error(error);
+            }
+        }
+    };
+
+    if (loading) return <div className="loading-container">Carregando detalhes...</div>;
+    if (!consulta) return <div className="loading-container">Consulta não encontrada.</div>;
+
+    return (
+        <div className="pets-details-page">
+            <HeaderComCadastro />
+            <div className="welcome-section">
+                <h1 className="welcome-title">Detalhes da Consulta</h1>
             </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Médico</label>
-                <div className="detail-value">{consulta.doctor}</div>
-              </div>
-              <div className="form-group">
-                <label>Data e Hora</label>
-                <div className="detail-value">
-                  {new Date(consulta.date).toLocaleString('pt-BR')}
+            <div className="pet-details-wrapper">
+                <div className="pet-details-container">
+                    <form onSubmit={handleUpdate}>
+                        <div className="form-row">
+                            <div className="form-group"><label>Pet</label><div className="detail-value">{consulta.petName}</div></div>
+                            <div className="form-group"><label>Veterinário</label><div className="detail-value">{consulta.veterinaryName}</div></div>
+                        </div>
+                        <div className="form-row">
+                             <div className="form-group">
+                                <label>Data</label>
+                                {isEditing ? <input type="date" name="consultationdate" value={editData.consultationdate} onChange={handleInputChange} className="info-field editable"/> : <div className="detail-value">{new Date(consulta.consultationdate + 'T00:00:00').toLocaleDateString('pt-BR')}</div>}
+                            </div>
+                             <div className="form-group">
+                                <label>Hora</label>
+                                {isEditing ? <input type="time" name="consultationtime" value={editData.consultationtime} onChange={handleInputChange} className="info-field editable"/> : <div className="detail-value">{consulta.consultationtime}</div>}
+                            </div>
+                        </div>
+                        <div className="form-group full-width">
+                            <label>Motivo</label>
+                             {isEditing ? <textarea name="reason" value={editData.reason} onChange={handleInputChange} className="info-field editable" rows="3"></textarea> : <div className="detail-value long-text">{consulta.reason}</div>}
+                        </div>
+                         <div className="details-actions">
+                            <Link to="/consultas" className="back-button">Voltar</Link>
+                            {isEditing ? (
+                                <>
+                                    <button type="button" className="cancel-edit-button" onClick={() => setIsEditing(false)}>Cancelar</button>
+                                    <button type="submit" className="save-button">Salvar</button>
+                                </>
+                            ) : (
+                                <>
+                                    <button type="button" className="edit-button" onClick={() => setIsEditing(true)}>Editar Consulta</button>
+                                    <button type="button" className="decline-button" onClick={handleCancelConsultation}>Cancelar Consulta</button>
+                                </>
+                            )}
+                        </div>
+                    </form>
                 </div>
-              </div>
             </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Endereço</label>
-                <div className="detail-value">{consulta.locationAddress}</div>
-              </div>
-              {consulta.observations && (
-                <div className="form-group">
-                  <label>Observações</label>
-                  <div className="detail-value">{consulta.observations}</div>
-                </div>
-              )}
-            </div>
-
-            <div className="details-actions">
-              <Link to="/consultas" className="back-button">Voltar</Link>
-              <button 
-                className="remove-button" 
-                onClick={handleCancel}
-                style={{ backgroundColor: '#FF6B6B' }}
-              >
-                Cancelar Consulta
-              </button>
-            </div>
-          </div>
+            <Footer />
         </div>
-      </div>
-
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default ConsulDetails;

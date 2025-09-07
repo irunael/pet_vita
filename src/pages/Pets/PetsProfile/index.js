@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../../../components/Header_com_cadastro'; // Assumindo que o Header do cliente é este
+// ===== CORREÇÕES NOS IMPORTS ABAIXO =====
+import { Link } from 'react-router-dom'; // Corrigido: Importando o 'Link' que é usado no código
+import HeaderComCadastro from '../../../components/Header_com_cadastro'; // Corrigido: Importando com o nome correto
+// ======================================
 import Footer from '../../../components/Footer';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import './css/styles.css';
+import './css/styles.css'; // Verifique se este é o caminho correto para o seu CSS
 
 const PetsProfile = () => {
   const [pets, setPets] = useState([]);
@@ -13,7 +15,8 @@ const PetsProfile = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!user) {
+      setError('Você precisa estar logado para ver seus pets.');
       setLoading(false);
       return;
     }
@@ -22,8 +25,13 @@ const PetsProfile = () => {
       setLoading(true);
       setError('');
       try {
-        const response = await api.get(`/admin/users/${user.id}/details`);
-        setPets(response.data.pets || []);
+        // ===== ALTERAÇÃO PRINCIPAL AQUI =====
+        // Agora chamamos o novo endpoint seguro e eficiente
+        const response = await api.get('/pets/my-pets');
+        setPets(response.data || []);
+        // Não é mais necessário filtrar no front-end!
+        // =====================================
+
       } catch (error) {
         console.error("Erro ao buscar pets:", error);
         setError('Não foi possível carregar seus pets.');
@@ -37,12 +45,12 @@ const PetsProfile = () => {
 
   return (
     <div className="pet-profile-page">
-      {/* O Header é global, não precisa mais ser chamado aqui */}
+      <HeaderComCadastro />
       <div className="welcome-section">
         <h1 className="welcome-title">Bem vindo ao espaço para os seus Pets</h1>
       </div>
       <div className="pet-profile-container">
-        {loading && <p>Carregando...</p>}
+        {loading && <p style={{textAlign: 'center'}}>Carregando seus pets...</p>}
         {error && <p className="error-message">{error}</p>}
         {!loading && !error && (
           <>
@@ -50,13 +58,13 @@ const PetsProfile = () => {
               pets.map(pet => (
                 <div key={pet.id} className="pet-card">
                   <div className="pet-photo-container">
-                    <img src={pet.imageurl} alt={`Foto de ${pet.name}`} className="pet-photo" />
+                    <img src={pet.imageurl} alt={`Foto de ${pet.name}`} className="pet-photo" onError={(e) => { e.target.onerror = null; e.target.src='https://i.imgur.com/2qgrCI2.png' }} />
                   </div>
                   <div className="pet-info">
                     <h3 className="pet-name">{pet.name}</h3>
                     <span className="pet-gender">{pet.gender}</span>
                   </div>
-                  <Link to={`/pets-details/${pet.id}`} className="details-button">
+                  <Link to={`/pets-details/${pet.id}`} state={{ petData: pet }} className="details-button">
                     Detalhes <span className="arrow">›</span>
                   </Link>
                 </div>

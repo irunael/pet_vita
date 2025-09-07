@@ -181,6 +181,17 @@
   text-decoration: underline;
 }
 
+.link-button.cancel {
+  color: #B77EFF;
+  border: 2px solid #B77EFF;
+  transition: all 0.3s ease;
+}
+
+.link-button.cancel:hover {
+  background-color: #B77EFF;
+  color: white;
+}
+
 @media (max-width: 480px) {
   .modal-container {
     padding: 20px;
@@ -208,4 +219,19 @@
   border-radius: 5px;
   text-align: center;
   margin-bottom: 15px;
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #cc0000;
 }

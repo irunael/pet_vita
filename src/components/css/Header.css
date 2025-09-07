@@ -3,15 +3,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 50px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Altura e padding diminuídos */
+  height: 90px;
+  padding: 15px 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
   background: white;
-  height: 110px;
   box-sizing: border-box;
 }
 

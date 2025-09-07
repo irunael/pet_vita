@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
+import HeaderComCadastro from '../../../components/Header_com_cadastro';
 import Footer from '../../../components/Footer';
 import './css/styles.css';
 
@@ -9,18 +10,34 @@ const speciesOptions = [ "CACHORRO", "GATO", "PASSARO", "PEIXE", "ROEDOR", "REPT
 const porteOptions = ["PEQUENO", "MEDIO", "GRANDE"];
 const genderOptions = ["Macho", "Femea"];
 
+const breedOptions = {
+    CACHORRO: ["LABRADOR_RETRIEVER", "GOLDEN_RETRIEVER", "BULLDOG_FRANCES", "PASTOR_ALEMAO", "POODLE", "BEAGLE", "ROTTWEILER", "DACHSHUND", "SHIH_TZU", "OUTRO"],
+    GATO: ["PERSA", "SIAMES", "MAINE_COON", "RAGDOLL", "BENGAL", "SPHYNX", "BRITISH_SHORTHAIR", "SCOTTISH_FOLD", "OUTRO"],
+    PASSARO: ["CALOPSITA", "CANARIO", "PERIQUITO_AUSTRALIANO", "AGAPORNIS", "RINGNECK", "CACATUA", "ARARA", "PAPAGAIO_VERDADEIRO", "OUTRO"],
+    PEIXE: ["BETA", "GUPPY", "GOLDFISH_COMETA", "MOLLY", "PLATY", "TETRA_NEON", "CORYDORA", "PEIXE_PALHACO", "OUTRO"],
+    ROEDOR: ["HAMSTER_SIRIO", "HAMSTER_ANAO_RUSSO", "RATO_TWISTER", "PORQUINHO_DA_INDIA_INGLES", "PORQUINHO_DA_INDIA_PERUANO", "CHINCHILA", "GERBIL", "ESQUILO_DA_MONGOLIA", "OUTRO"],
+    REPTIL: ["DRAGAO_BARBUDO", "CORN_SNAKE", "TARTARUGA_TIGRE_DAGUA", "LEOPARDO_GECKO", "IGUANA_VERDE", "PITON_REAL", "JIBOIA", "CAMALEAO", "OUTRO"],
+    COELHO: ["ANAO_HOLANDES", "MINI_LOP", "NOVA_ZELANDIA_BRANCO", "LIONHEAD", "FLEMISH_GIANT", "HOLLAND_LOP", "REX", "ANGORA_INGLES", "OUTRO"],
+};
+
 const AddPet = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     age: '',
-    imageurl: 'https://i.imgur.com/2qgrCI2.png', // URL padrão
-    personalizatedSpecies: '',
-    personalizedBreed: '',
+    imageurl: 'https://i.imgur.com/2qgrCI2.png',
     speciespet: '',
     porte: '',
     gender: '',
+    dogBreed: '',
+    catBreed: '',
+    birdBreed: '',
+    fishBreed: '',
+    rodentBreed: '',
+    reptileBreed: '',
+    rabbitBreed: '',
+    personalizedBreed: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,19 +58,67 @@ const AddPet = () => {
 
     try {
       const petData = { ...formData, age: parseInt(formData.age), usuarioId: user.id };
-      await api.post('/pets', petData);
+
+      // Cria uma cópia dos dados para "limpar" antes de enviar
+      const dataToSend = { ...petData };
+
+      // Transforma qualquer campo de raça vazio ("") em null
+      for (const key in dataToSend) {
+        if (key.endsWith('Breed') && dataToSend[key] === '') {
+          dataToSend[key] = null;
+        }
+      }
+      
+      await api.post('/pets', dataToSend); // Envia os dados limpos
       alert('Pet cadastrado com sucesso!');
       navigate('/pets');
     } catch (error) {
       console.error("Erro ao cadastrar pet:", error);
-      setError(error.response?.data?.message || "Falha ao cadastrar o pet. Verifique os dados.");
+      const errorMsg = error.response?.data?.message || "Falha ao cadastrar o pet. Verifique os dados.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
+  const renderBreedSelector = () => {
+    const selectedSpecies = formData.speciespet;
+    if (!selectedSpecies || !breedOptions[selectedSpecies]) {
+      return (
+        <div className="form-group">
+            <label htmlFor="personalizedBreed">Raça</label>
+            <input type="text" id="personalizedBreed" name="personalizedBreed" placeholder="Especifique a raça" required onChange={handleChange} />
+        </div>
+      );
+    }
+
+    const breedKey = `${selectedSpecies.toLowerCase()}Breed`;
+    const currentBreedValue = formData[breedKey];
+
+    return (
+        <>
+            <div className="form-group">
+                <label htmlFor={breedKey}>Raça</label>
+                <select id={breedKey} name={breedKey} required onChange={handleChange} value={currentBreedValue}>
+                    <option value="">Selecione a raça</option>
+                    {breedOptions[selectedSpecies].map(breed => (
+                        <option key={breed} value={breed}>{breed.replace(/_/g, ' ').charAt(0) + breed.replace(/_/g, ' ').slice(1).toLowerCase()}</option>
+                    ))}
+                </select>
+            </div>
+            {currentBreedValue === 'OUTRO' && (
+                <div className="form-group">
+                    <label htmlFor="personalizedBreed">Especifique a Raça</label>
+                    <input type="text" id="personalizedBreed" name="personalizedBreed" required onChange={handleChange} />
+                </div>
+            )}
+        </>
+    );
+  };
+
   return (
     <div className="add-pet-page">
+      <HeaderComCadastro />
       <div className="welcome-section">
         <h1 className="welcome-title">Cadastre seu novo amigo</h1>
       </div>
@@ -73,10 +138,7 @@ const AddPet = () => {
                   {speciesOptions.map(specie => (<option key={specie} value={specie}>{specie.charAt(0) + specie.slice(1).toLowerCase()}</option>))}
                 </select>
               </div>
-              <div className="form-group">
-                <label htmlFor="personalizedBreed">Raça</label>
-                <input type="text" id="personalizedBreed" name="personalizedBreed" required onChange={handleChange} />
-              </div>
+              {renderBreedSelector()}
             </div>
             <div className="form-row">
               <div className="form-group">

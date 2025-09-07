@@ -19,18 +19,45 @@
 }
 
 /* Container principal */
+/* Atualizar o container principal */
 .pet-profile-container {
-  background-color: #EBE4F4;
-  width: 50%;
-  min-height: 350px;
-  margin: 0 auto;
-  padding: 30px;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin-bottom: 40px;
+    background-color: #EBE4F4;
+    width: 80%;
+    max-width: 1200px;
+    min-height: 350px;
+    margin: 20px auto 40px;
+    padding: 30px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilizar o botão de adicionar pet */
+.action-button-primary {
+    background-color: #8D7EFB;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: center;
+    margin-top: 20px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(141, 126, 251, 0.2);
+}
+
+.action-button-primary:hover {
+    background-color: #B77EFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(141, 126, 251, 0.3);
 }
 
 /* Card do pet */

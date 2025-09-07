@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import HeaderComCadastro from '../../../components/Header_com_cadastro';
+import Footer from '../../../components/Footer';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import Footer from '../../../components/Footer';
-import './css/styles.css';
+import '../css/styles.css';
 
 const ConsulPending = () => {
     const [allConsultas, setAllConsultas] = useState([]);
@@ -11,14 +12,20 @@ const ConsulPending = () => {
     const [error, setError] = useState('');
     const { user } = useAuth();
     
-    // Simula a troca de abas no front-end
-    const [activeTab, setActiveTab] = useState('pendentes');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTab = searchParams.get('tab') || 'pendentes';
+    const [activeTab, setActiveTab] = useState(initialTab);
+    
+    const [dataAtual] = useState(new Date());
 
     useEffect(() => {
-        if (!user) {
-            setLoading(false);
-            return;
-        };
+        const currentTab = searchParams.get('tab') || 'pendentes';
+        setActiveTab(currentTab);
+    }, [searchParams]);
+
+    useEffect(() => {
+        if (!user) { setLoading(false); return; };
+        
         const fetchConsultas = async () => {
             setLoading(true);
             try {
@@ -33,39 +40,95 @@ const ConsulPending = () => {
         fetchConsultas();
     }, [user]);
 
-    const pendentes = allConsultas.filter(c => c.status === 'PENDENTE' || c.status === 'AGENDADA');
-    const concluidas = allConsultas.filter(c => c.status === 'FINALIZADA' || c.status === 'CANCELADA' || c.status === 'RECUSADA');
+    const renderContent = () => {
+        if (loading) return <p style={{textAlign: 'center', padding: '20px'}}>Carregando...</p>;
+        if (error) return <p className="error-message">{error}</p>;
 
-    const dataToRender = activeTab === 'pendentes' ? pendentes : concluidas;
+        // ===== LÓGICA DO CALENDÁRIO RESTAURADA =====
+        if (activeTab === 'calendario') {
+            const renderizarDias = () => {
+                const dias = [];
+                const ano = dataAtual.getFullYear();
+                const mes = dataAtual.getMonth();
+                const primeiroDiaDoMes = new Date(ano, mes, 1).getDay();
+                const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+                const offsetPrimeiroDia = (primeiroDiaDoMes === 0) ? 6 : primeiroDiaDoMes - 1;
+
+                for (let i = 0; i < offsetPrimeiroDia; i++) { dias.push(<div key={`vazio-${i}`} className="dia-celula vazio"></div>); }
+
+                for (let dia = 1; dia <= diasNoMes; dia++) {
+                const consultasDoDia = allConsultas.filter(c => new Date(c.consultationdate).getDate() + 1 === dia && new Date(c.consultationdate).getMonth() === mes);
+                dias.push(
+                    <div key={dia} className="dia-celula">
+                    <span className="numero-dia">{dia}</span>
+                    {consultasDoDia.length > 0 && (
+                        <div className="marcadores-container">
+                        {consultasDoDia.map((consulta) => (
+                            <div key={consulta.id} className="marcador-consulta" title={`${consulta.petName} às ${consulta.consultationtime}`}></div>
+                        ))}
+                        </div>
+                    )}
+                    </div>
+                );
+                }
+                return dias;
+            };
+            return (
+                <div className="calendario-container">
+                    <div className="calendario-grid">{renderizarDias()}</div>
+                </div>
+            );
+        }
+        // ===========================================
+
+        // ===== LÓGICA DAS ABAS CORRIGIDA =====
+        const pendentes = allConsultas.filter(c => c.status === 'PENDENTE');
+        const agendadas = allConsultas.filter(c => c.status === 'AGENDADA');
+        const historico = allConsultas.filter(c => ['FINALIZADA', 'CANCELADA', 'RECUSADA'].includes(c.status));
+
+        let dataToRender = [];
+        if (activeTab === 'pendentes') dataToRender = pendentes;
+        if (activeTab === 'agendadas') dataToRender = agendadas;
+        if (activeTab === 'historico') dataToRender = historico;
+
+        if (dataToRender.length === 0) return <p style={{textAlign: 'center', padding: '20px'}}>Nenhuma consulta encontrada nesta aba.</p>;
+        
+        return dataToRender.map(c => (
+            <Link 
+                to={c.status === 'FINALIZADA' ? `/detalhes-consulta-concluida/${c.id}` : `/detalhes-consulta/${c.id}`} 
+                key={c.id} 
+                className="pet-card-link"
+            >
+                <div className="pet-card">
+                    <div className="pet-info">
+                        <h3 className="pet-name">{c.petName}</h3>
+                        <span className="card-subtitle">{c.speciality} com {c.veterinaryName}</span>
+                        <span className="card-subtitle">{new Date(c.consultationdate + 'T' + c.consultationtime).toLocaleString('pt-BR', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <span className={`status-badge ${c.status.toLowerCase()}`}>{c.status}</span>
+                </div>
+            </Link>
+        ));
+    };
 
     return (
         <div className="pet-profile-page">
+            <HeaderComCadastro />
             <main className="main-content-consultation">
-                <div className="consultation-header">
-                    <h1>Minhas Consultas</h1>
-                    <Link to="/agendar-consulta" className="action-button-primary">
-                        Agendar Nova Consulta
-                    </Link>
-                </div>
+                <h1>Minhas Consultas</h1>
                 <div className="pet-profile-container">
                     <div className="status-section">
                         <div className="status-buttons">
-                            <button className={`status-button ${activeTab === 'pendentes' ? 'active' : ''}`} onClick={() => setActiveTab('pendentes')}>Pendentes</button>
-                            <button className={`status-button ${activeTab === 'concluidas' ? 'active' : ''}`} onClick={() => setActiveTab('concluidas')}>Concluídas</button>
+                            <button className={`status-button ${activeTab === 'pendentes' ? 'active' : ''}`} onClick={() => setSearchParams({tab: 'pendentes'})}>Pendentes</button>
+                            <button className={`status-button ${activeTab === 'agendadas' ? 'active' : ''}`} onClick={() => setSearchParams({tab: 'agendadas'})}>Agendadas</button>
+                            <button className={`status-button ${activeTab === 'historico' ? 'active' : ''}`} onClick={() => setSearchParams({tab: 'historico'})}>Histórico</button>
+                            <button className={`status-button ${activeTab === 'calendario' ? 'active' : ''}`} onClick={() => setSearchParams({tab: 'calendario'})}>Calendário</button>
                         </div>
                     </div>
-                    {loading && <p>Carregando...</p>}
-                    {error && <p className="error-message">{error}</p>}
-                    {!loading && !error && dataToRender.map(c => (
-                        <div key={c.id} className="pet-card">
-                            <div className="pet-info">
-                                <h3 className="pet-name">{c.petName}</h3>
-                                <span>{c.speciality} com {c.veterinaryName}</span>
-                                <span>{new Date(c.consultationdate + 'T' + c.consultationtime).toLocaleString('pt-BR')}</span>
-                            </div>
-                            <span className={`status-badge ${c.status.toLowerCase()}`}>{c.status}</span>
-                        </div>
-                    ))}
+                    <div className="consultas-list-container">{renderContent()}</div>
+                    <div className="add-consulta-container">
+                        <Link to="/agendar-consulta" className="action-button-primary">Agendar Nova Consulta</Link>
+                    </div>
                 </div>
             </main>
             <Footer />
