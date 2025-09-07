@@ -1,111 +1,113 @@
-import React, { useState } from 'react';
-import Header from '../../components/Header_com_cadastro'; // CORRIGIDO
-import Footer from '../../components/Footer'; // CORRIGIDO
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom'; // Importar useParams
+import HeaderComCadastro from '../../components/Header_com_cadastro';
+import Footer from '../../components/Footer';
+import api from '../../services/api';
 import { IoSend } from 'react-icons/io5';
 import './css/styles.css';
 
-// Dados mockados para simular conversas
-const mockConversations = [
-  { id: 1, name: 'Dr. Carlos Silva', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', lastMessage: 'Claro, pode trazer o Rex amanhã.', unread: 1 },
-  { id: 2, name: 'Administração Pet Vita', avatar: 'https://cdn-icons-png.flaticon.com/512/906/906343.png', lastMessage: 'Sua fatura de Julho já está disponível.', unread: 0 },
-  { id: 3, name: 'Dra. Juliana Costa', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', lastMessage: 'Os resultados do exame da Luna chegaram.', unread: 0 },
-];
-
-const mockMessages = {
-  1: [
-    { id: 1, text: 'Olá Dr. Carlos, o Rex está tossindo um pouco. Devo me preocupar?', sender: 'me' },
-    { id: 2, text: 'Olá! É uma tosse seca ou com secreção?', sender: 'other' },
-    { id: 3, text: 'É uma tosse mais seca, parece um engasgo.', sender: 'me' },
-    { id: 4, text: 'Entendi. Pode ser algo simples, mas é bom verificar. Consegue trazê-lo para uma avaliação?', sender: 'other' },
-    { id: 5, text: 'Claro, pode trazer o Rex amanhã.', sender: 'other' },
-  ],
-  2: [
-    { id: 1, text: 'Sua fatura de Julho já está disponível.', sender: 'other' },
-  ],
-  3: [],
-}
-
 const Chat = () => {
-    const [activeConversationId, setActiveConversationId] = useState(1);
-    const [messages, setMessages] = useState(mockMessages[1]);
+    const { consultationId } = useParams(); // Pega o ID da consulta da URL
+
+    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    
+    // Simulação de com quem você está falando (em um app real, viria da API)
+    const [chatPartner, setChatPartner] = useState({ name: 'Carregando...', avatar: '' });
 
-    const handleConversationClick = (convId) => {
-        setActiveConversationId(convId);
-        setMessages(mockMessages[convId] || []);
-    };
+    useEffect(() => {
+        if (!consultationId) return;
 
-    const handleSendMessage = (e) => {
+        const fetchMessages = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                // Busca o histórico de mensagens da API
+                const response = await api.get(`/chat/${consultationId}`);
+                setMessages(response.data);
+
+                // Lógica de exemplo para definir o nome no header do chat
+                // Em um app real, você buscaria os detalhes da consulta
+                // para saber o nome do veterinário/paciente.
+                // const consultaResponse = await api.get(`/consultas/${consultationId}`);
+                // setChatPartner({ name: consultaResponse.data.veterinaryName, avatar: '...' });
+
+            } catch (err) {
+                setError('Não foi possível carregar as mensagens. Você tem permissão para ver este chat?');
+                console.error("Erro ao buscar chat:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMessages();
+    }, [consultationId]);
+
+    const handleSendMessage = async (e) => {
         e.preventDefault();
         if (newMessage.trim() === '') return;
 
-        const newMsg = {
-            id: messages.length + 1,
-            text: newMessage,
-            sender: 'me'
-        };
+        const originalMessage = newMessage;
+        setNewMessage(''); // Limpa o input imediatamente para melhor UX
 
-        setMessages([...messages, newMsg]);
-        setNewMessage('');
+        try {
+            // Envia a nova mensagem para a API
+            // O backend espera um texto puro, então enviamos diretamente
+            const response = await api.post(`/chat/${consultationId}`, originalMessage, {
+                headers: { 'Content-Type': 'text/plain' }
+            });
+            // Adiciona a mensagem retornada (com ID e timestamp) à lista
+            setMessages(prevMessages => [...prevMessages, response.data]);
+        } catch (err) {
+            console.error("Erro ao enviar mensagem:", err);
+            setNewMessage(originalMessage); // Restaura a mensagem no input se der erro
+            alert("Não foi possível enviar a mensagem.");
+        }
     };
-
-    const activeConversation = mockConversations.find(c => c.id === activeConversationId);
 
     return (
         <div className="chat-page">
-            <Header />
+            <HeaderComCadastro />
             <div className="chat-container">
-                {/* Sidebar com a lista de conversas */}
+                {/* A sidebar precisaria ser conectada para listar as consultas com chat ativo */}
                 <div className="chat-sidebar">
-                    <div className="sidebar-header">
-                        <h3>Conversas</h3>
-                    </div>
+                    <div className="sidebar-header"><h3>Conversas</h3></div>
                     <div className="contact-list">
-                        {mockConversations.map(conv => (
-                            <div 
-                                key={conv.id} 
-                                className={`contact-item ${conv.id === activeConversationId ? 'active' : ''}`}
-                                onClick={() => handleConversationClick(conv.id)}
-                            >
-                                <img src={conv.avatar} alt={conv.name} className="contact-avatar" />
-                                <div className="contact-info">
-                                    <span className="contact-name">{conv.name}</span>
-                                    <span className="contact-last-message">{conv.lastMessage}</span>
-                                </div>
-                                {conv.unread > 0 && <span className="unread-badge">{conv.unread}</span>}
+                        <div className="contact-item active">
+                            <div className="contact-info">
+                                <span className="contact-name">Consulta #{consultationId}</span>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Área principal do chat */}
                 <div className="chat-main">
-                    {activeConversation ? (
-                        <>
-                            <div className="chat-header">
-                                <img src={activeConversation.avatar} alt={activeConversation.name} className="contact-avatar" />
-                                <span className="contact-name">{activeConversation.name}</span>
+                    <div className="chat-header">
+                        {/* <img src={chatPartner.avatar} alt={chatPartner.name} className="contact-avatar" /> */}
+                        <span className="contact-name">{chatPartner.name}</span>
+                    </div>
+                    <div className="message-area">
+                        {loading && <p>Carregando histórico...</p>}
+                        {error && <p className="error-message">{error}</p>}
+                        {!loading && messages.map(msg => (
+                            // A API não informa quem enviou em relação a 'me' ou 'other'
+                            // Precisaríamos do ID do usuário logado para comparar com msg.sender.id
+                            <div key={msg.id} className={'message received'}>
+                                {msg.content}
                             </div>
-                            <div className="message-area">
-                                {messages.map(msg => (
-                                    <div key={msg.id} className={`message ${msg.sender === 'me' ? 'sent' : 'received'}`}>
-                                        {msg.text}
-                                    </div>
-                                ))}
-                            </div>
-                            <form className="message-input-area" onSubmit={handleSendMessage}>
-                                <input 
-                                    type="text" 
-                                    placeholder="Digite sua mensagem..."
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                />
-                                <button type="submit"><IoSend size={22} /></button>
-                            </form>
-                        </>
-                    ) : (
-                        <div className="no-chat-selected">Selecione uma conversa para começar</div>
-                    )}
+                        ))}
+                    </div>
+                    <form className="message-input-area" onSubmit={handleSendMessage}>
+                        <input 
+                            type="text" 
+                            placeholder="Digite sua mensagem..."
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                        />
+                        <button type="submit"><IoSend size={22} /></button>
+                    </form>
                 </div>
             </div>
             <Footer />
