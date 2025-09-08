@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
@@ -6,10 +6,10 @@ import HeaderComCadastro from '../../../components/Header_com_cadastro';
 import Footer from '../../../components/Footer';
 import './css/styles.css';
 
+// Enums e Constantes
 const speciesOptions = [ "CACHORRO", "GATO", "PASSARO", "PEIXE", "ROEDOR", "REPTIL", "COELHO", "OUTROS" ];
 const porteOptions = ["PEQUENO", "MEDIO", "GRANDE"];
 const genderOptions = ["Macho", "Femea"];
-
 const breedOptions = {
     CACHORRO: ["LABRADOR_RETRIEVER", "GOLDEN_RETRIEVER", "BULLDOG_FRANCES", "PASTOR_ALEMAO", "POODLE", "BEAGLE", "ROTTWEILER", "DACHSHUND", "SHIH_TZU", "OUTRO"],
     GATO: ["PERSA", "SIAMES", "MAINE_COON", "RAGDOLL", "BENGAL", "SPHYNX", "BRITISH_SHORTHAIR", "SCOTTISH_FOLD", "OUTRO"],
@@ -20,70 +20,95 @@ const breedOptions = {
     COELHO: ["ANAO_HOLANDES", "MINI_LOP", "NOVA_ZELANDIA_BRANCO", "LIONHEAD", "FLEMISH_GIANT", "HOLLAND_LOP", "REX", "ANGORA_INGLES", "OUTRO"],
 };
 
+// Função ajudante para obter a chave de raça correta (dogBreed, catBreed, etc.)
+const getBreedKeyForSpecies = (species) => {
+    switch (species) {
+        case 'CACHORRO': return 'dogBreed';
+        case 'GATO': return 'catBreed';
+        case 'PASSARO': return 'birdBreed';
+        case 'PEIXE': return 'fishBreed';
+        case 'ROEDOR': return 'rodentBreed';
+        case 'REPTIL': return 'reptileBreed';
+        case 'COELHO': return 'rabbitBreed';
+        default: return null;
+    }
+};
+
 const AddPet = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    imageurl: 'https://i.imgur.com/2qgrCI2.png',
-    speciespet: '',
-    porte: '',
-    gender: '',
-    dogBreed: '',
-    catBreed: '',
-    birdBreed: '',
-    fishBreed: '',
-    rodentBreed: '',
-    reptileBreed: '',
-    rabbitBreed: '',
-    personalizedBreed: '',
+    name: '', age: '', imageurl: 'https://i.imgur.com/2qgrCI2.png',
+    speciespet: '', porte: '', gender: '',
+    dogBreed: null, catBreed: null, birdBreed: null, fishBreed: null, 
+    rodentBreed: null, reptileBreed: null, rabbitBreed: null,
+    personalizedBreed: null,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const updatedData = { ...formData, [name]: value };
+
+    if (name === 'speciespet') {
+        updatedData.dogBreed = null;
+        updatedData.catBreed = null;
+        updatedData.birdBreed = null;
+        updatedData.fishBreed = null;
+        updatedData.rodentBreed = null;
+        updatedData.reptileBreed = null;
+        updatedData.rabbitBreed = null;
+        updatedData.personalizedBreed = null;
+    }
+    setFormData(updatedData);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user?.id) {
-      setError("Você precisa estar logado para cadastrar um pet.");
-      return;
+    if (!user?.id) { 
+      setError("Você precisa estar logado para cadastrar um pet."); 
+      return; 
     }
+    
     setLoading(true);
     setError('');
 
     try {
-      const petData = { ...formData, age: parseInt(formData.age), usuarioId: user.id };
+        const { name, age, imageurl, speciespet, porte, gender, personalizedBreed } = formData;
+        const breedKey = getBreedKeyForSpecies(speciespet);
+        const selectedBreed = breedKey ? formData[breedKey] : null;
 
-      // Cria uma cópia dos dados para "limpar" antes de enviar
-      const dataToSend = { ...petData };
+        const dataToSend = {
+            name, age: parseInt(age), imageurl, speciespet, porte, gender, usuarioId: user.id,
+            dogBreed: null, catBreed: null, birdBreed: null, fishBreed: null, 
+            rodentBreed: null, reptileBreed: null, rabbitBreed: null,
+            personalizedBreed: null
+        };
 
-      // Transforma qualquer campo de raça vazio ("") em null
-      for (const key in dataToSend) {
-        if (key.endsWith('Breed') && dataToSend[key] === '') {
-          dataToSend[key] = null;
+        if (selectedBreed === 'OUTRO') {
+            dataToSend.personalizedBreed = personalizedBreed;
+        } else if (breedKey && selectedBreed) {
+            dataToSend[breedKey] = selectedBreed;
         }
-      }
-      
-      await api.post('/pets', dataToSend); // Envia os dados limpos
-      alert('Pet cadastrado com sucesso!');
-      navigate('/pets');
+        
+        console.log("DADOS FINAIS ENVIADOS PARA A API:", dataToSend);
+        
+        await api.post('/pets', dataToSend);
+        alert('Pet cadastrado com sucesso!');
+        navigate('/pets');
     } catch (error) {
-      console.error("Erro ao cadastrar pet:", error);
-      const errorMsg = error.response?.data?.message || "Falha ao cadastrar o pet. Verifique os dados.";
-      setError(errorMsg);
+        console.error("Erro ao cadastrar pet:", error.response?.data || error);
+        const errorMsg = error.response?.data?.message || "Falha ao cadastrar o pet. Verifique os dados e tente novamente.";
+        setError(errorMsg);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
   const renderBreedSelector = () => {
     const selectedSpecies = formData.speciespet;
-    if (!selectedSpecies || !breedOptions[selectedSpecies]) {
+    if (!selectedSpecies || !breedOptions[selectedSpecies] || selectedSpecies === 'OUTROS') {
       return (
         <div className="form-group">
             <label htmlFor="personalizedBreed">Raça</label>
@@ -92,14 +117,14 @@ const AddPet = () => {
       );
     }
 
-    const breedKey = `${selectedSpecies.toLowerCase()}Breed`;
+    const breedKey = getBreedKeyForSpecies(selectedSpecies);
     const currentBreedValue = formData[breedKey];
 
     return (
         <>
             <div className="form-group">
                 <label htmlFor={breedKey}>Raça</label>
-                <select id={breedKey} name={breedKey} required onChange={handleChange} value={currentBreedValue}>
+                <select id={breedKey} name={breedKey} required onChange={handleChange} value={currentBreedValue || ''}>
                     <option value="">Selecione a raça</option>
                     {breedOptions[selectedSpecies].map(breed => (
                         <option key={breed} value={breed}>{breed.replace(/_/g, ' ').charAt(0) + breed.replace(/_/g, ' ').slice(1).toLowerCase()}</option>
@@ -108,8 +133,8 @@ const AddPet = () => {
             </div>
             {currentBreedValue === 'OUTRO' && (
                 <div className="form-group">
-                    <label htmlFor="personalizedBreed">Especifique a Raça</label>
-                    <input type="text" id="personalizedBreed" name="personalizedBreed" required onChange={handleChange} />
+                    <label htmlFor="personalizedBreed">Especifique a Raça (mín. 3 caracteres)</label>
+                    <input type="text" id="personalizedBreed" name="personalizedBreed" placeholder="Digite o nome da raça" required onChange={handleChange} />
                 </div>
             )}
         </>
@@ -128,7 +153,7 @@ const AddPet = () => {
             {error && <p className="error-message">{error}</p>}
             <div className="form-row">
               <div className="form-group"><label htmlFor="name">Nome</label><input type="text" id="name" name="name" required onChange={handleChange} /></div>
-              <div className="form-group"><label htmlFor="age">Idade (anos)</label><input type="number" id="age" name="age" required onChange={handleChange} /></div>
+              <div className="form-group"><label htmlFor="age">Idade (anos)</label><input type="number" id="age" name="age" required onChange={handleChange} min="0" /></div>
             </div>
             <div className="form-row">
               <div className="form-group">

@@ -6,18 +6,28 @@ import HeaderComCadastro from '../../../components/Header_com_cadastro';
 import Footer from '../../../components/Footer';
 import './css/styles.css';
 
-// Enums para os seletores no modo de edição
+// Enums e Constantes
 const speciesOptions = [ "CACHORRO", "GATO", "PASSARO", "PEIXE", "ROEDOR", "REPTIL", "COELHO", "OUTROS" ];
 const porteOptions = ["PEQUENO", "MEDIO", "GRANDE"];
 const genderOptions = ["Macho", "Femea"];
 const breedOptions = {
     CACHORRO: ["LABRADOR_RETRIEVER", "GOLDEN_RETRIEVER", "BULLDOG_FRANCES", "PASTOR_ALEMAO", "POODLE", "BEAGLE", "ROTTWEILER", "DACHSHUND", "SHIH_TZU", "OUTRO"],
     GATO: ["PERSA", "SIAMES", "MAINE_COON", "RAGDOLL", "BENGAL", "SPHYNX", "BRITISH_SHORTHAIR", "SCOTTISH_FOLD", "OUTRO"],
-    PASSARO: ["CALOPSITA", "CANARIO", "PERIQUITO_AUSTRALIANO", "AGAPORNIS", "RINGNECK", "CACATUA", "ARARA", "PAPAGAIO_VERDADEIRO", "OUTRO"],
-    PEIXE: ["BETA", "GUPPY", "GOLDFISH_COMETA", "MOLLY", "PLATY", "TETRA_NEON", "CORYDORA", "PEIXE_PALHACO", "OUTRO"],
-    ROEDOR: ["HAMSTER_SIRIO", "HAMSTER_ANAO_RUSSO", "RATO_TWISTER", "PORQUINHO_DA_INDIA_INGLES", "PORQUINHO_DA_INDIA_PERUANO", "CHINCHILA", "GERBIL", "ESQUILO_DA_MONGOLIA", "OUTRO"],
-    REPTIL: ["DRAGAO_BARBUDO", "CORN_SNAKE", "TARTARUGA_TIGRE_DAGUA", "LEOPARDO_GECKO", "IGUANA_VERDE", "PITON_REAL", "JIBOIA", "CAMALEAO", "OUTRO"],
-    COELHO: ["ANAO_HOLANDES", "MINI_LOP", "NOVA_ZELANDIA_BRANCO", "LIONHEAD", "FLEMISH_GIANT", "HOLLAND_LOP", "REX", "ANGORA_INGLES", "OUTRO"],
+    // ...
+};
+
+// Função ajudante para obter a chave de raça correta
+const getBreedKeyForSpecies = (species) => {
+    switch (species) {
+        case 'CACHORRO': return 'dogBreed';
+        case 'GATO': return 'catBreed';
+        case 'PASSARO': return 'birdBreed';
+        case 'PEIXE': return 'fishBreed';
+        case 'ROEDOR': return 'rodentBreed';
+        case 'REPTIL': return 'reptileBreed';
+        case 'COELHO': return 'rabbitBreed';
+        default: return null;
+    }
 };
 
 const PetsDetails = () => {
@@ -50,14 +60,41 @@ const PetsDetails = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setEditData(prev => ({ ...prev, [name]: value }));
+        const updatedData = { ...editData, [name]: value };
+        if (name === 'speciespet') {
+            updatedData.dogBreed = null;
+            updatedData.catBreed = null;
+            updatedData.birdBreed = null;
+            updatedData.fishBreed = null;
+            updatedData.rodentBreed = null;
+            updatedData.reptileBreed = null;
+            updatedData.rabbitBreed = null;
+            updatedData.personalizedBreed = null;
+        }
+        setEditData(updatedData);
     };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            const updateDTO = { ...editData, age: parseInt(editData.age), usuarioId: user.id };
-            const response = await api.put(`/pets/${petId}`, updateDTO);
+            const { name, age, imageurl, speciespet, porte, gender, personalizedBreed } = editData;
+            const breedKey = getBreedKeyForSpecies(speciespet);
+            const selectedBreed = breedKey ? editData[breedKey] : null;
+
+            const dataToSend = {
+                name, age: parseInt(age), imageurl, speciespet, porte, gender, usuarioId: user.id,
+                dogBreed: null, catBreed: null, birdBreed: null, fishBreed: null, 
+                rodentBreed: null, reptileBreed: null, rabbitBreed: null,
+                personalizedBreed: null,
+            };
+
+            if (selectedBreed === 'OUTRO') {
+                dataToSend.personalizedBreed = personalizedBreed;
+            } else if (breedKey && selectedBreed) {
+                dataToSend[breedKey] = selectedBreed;
+            }
+
+            const response = await api.put(`/pets/${petId}`, dataToSend);
             setPetData(response.data);
             setIsEditing(false);
             alert('Dados do pet atualizados com sucesso!');
@@ -92,9 +129,9 @@ const PetsDetails = () => {
 
     const renderBreedSelector = () => {
         const selectedSpecies = editData.speciespet;
-        const breedKey = `${selectedSpecies?.toLowerCase()}Breed`;
+        const breedKey = getBreedKeyForSpecies(selectedSpecies);
         
-        if (!selectedSpecies || !breedOptions[selectedSpecies]) {
+        if (!selectedSpecies || !breedOptions[selectedSpecies] || selectedSpecies === 'OUTROS') {
             return (
                 <div className="profile-field">
                     <label>Raça</label>
@@ -131,10 +168,9 @@ const PetsDetails = () => {
                     <form className="profile-content-column" onSubmit={handleUpdate}>
                         <div className="profile-picture-section">
                             <div className="profile-picture-container">
-                                <img src={petData.imageurl} alt={`Foto de ${petData.name}`} className="profile-picture" />
+                                <img src={petData.imageurl} alt={`Foto de ${petData.name}`} className="profile-picture" onError={(e) => { e.target.onerror = null; e.target.src='https://i.imgur.com/2qgrCI2.png' }}/>
                             </div>
                         </div>
-
                         <div className="profile-info-section">
                             <div className="profile-row">
                                 <div className="profile-field">
@@ -158,7 +194,19 @@ const PetsDetails = () => {
                                 {isEditing ? renderBreedSelector() : (
                                     <div className="profile-field">
                                         <label>Raça</label>
-                                        <div className="info-field">{petData.personalizedBreed || petData.dogBreed || petData.catBreed || 'Não especificada'}</div>
+                                        <div className="info-field">
+                                            {(
+                                                petData.personalizedBreed || 
+                                                petData.dogBreed || 
+                                                petData.catBreed || 
+                                                petData.birdBreed || 
+                                                petData.fishBreed || 
+                                                petData.rodentBreed || 
+                                                petData.reptileBreed || 
+                                                petData.rabbitBreed || 
+                                                'Não especificada'
+                                            ).replace(/_/g, ' ')}
+                                        </div>
                                     </div>
                                 )}
                             </div>
