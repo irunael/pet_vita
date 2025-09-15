@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import { IoSend } from 'react-icons/io5';
-import '../Chat/Chat.css';
+import './css/Chat.css';
 
 const mockConversations = [
   { id: 1, name: 'Carlos Souza (Paciente)', avatar: 'https://i.pravatar.cc/150?img=12', lastMessage: 'Ele está tossindo um pouco...', unread: 1 },

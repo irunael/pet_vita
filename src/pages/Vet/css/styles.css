@@ -837,3 +837,261 @@
     margin-bottom: 15px;
   }
 }
+
+
+
+
+
+
+
+
+
+
+/* =================================================== */
+/* ESTILOS BASE PARA TODAS AS PÁGINAS VETERINÁRIAS     */
+/* =================================================== */
+/* Este arquivo deve ser importado em todas as páginas vet */
+
+/* Estilos gerais compartilhados 
+.vet-page, .pet-profile-page, .vet-dashboard-page, .pets-details-page {
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Containers de conteúdo base 
+.vet-content-full {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  padding-top: 150px;
+  padding-bottom: 40px;
+}
+
+.dashboard-content, .vet-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 150px;
+}
+
+/* Headers de página padronizados 
+.vet-page-header {
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 20px;
+}
+
+.vet-page-header h1 { 
+  font-family: 'Poppins', sans-serif; 
+  font-size: 2.5rem; 
+  color: #333; 
+  margin: 0; 
+}
+
+.vet-page-header p { 
+  font-size: 1.1rem; 
+  color: #777; 
+  margin-top: 5px; 
+}
+
+/* Container roxo padrão usado em várias páginas 
+.pet-profile-container {
+  background-color: #EBE4F4;
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-height: 70vh;
+}
+
+/* Sistema de navegação por abas (usado em consultas/calendário) 
+.status-section {
+  width: 100%;
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.status-buttons .status-button {
+  background-color: #fff;
+  color: #8D7EFB;
+  font-size: 1rem;
+  padding: 12px 30px;
+  border: 1px solid #EBE4F4;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.status-buttons .status-button:hover {
+  background-color: #f5f0ff;
+  border-color: #dcd6f7;
+}
+
+.status-buttons .status-button.active {
+  background-color: #8D7EFB;
+  color: white;
+  border-color: #8D7EFB;
+}
+
+/* Avatar placeholder padrão (usado em várias páginas) 
+.card-avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #8D7EFB;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Botões padrão do sistema 
+.btn-primary {
+  background-color: #8D7EFB;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary:hover {
+  background-color: #7a6ae8;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: #B77EFF;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-secondary:hover {
+  background-color: #9D5AFF;
+  transform: translateY(-2px);
+}
+
+/* Cards base do sistema 
+.vet-card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.vet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Sistema de cores padrão 
+:root {
+  --primary-purple: #8D7EFB;
+  --secondary-purple: #B77EFF;
+  --light-purple: #EBE4F4;
+  --background-gray: #f9f9f9;
+  --text-dark: #333;
+  --text-medium: #555;
+  --text-light: #777;
+  --border-light: #e0e0e0;
+  --success-green: #4CAF50;
+  --error-red: #f44336;
+}
+
+/* Tipografia padrão 
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Estados de loading/erro comuns 
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  color: var(--text-medium);
+}
+
+.error-state {
+  text-align: center;
+  color: var(--error-red);
+  padding: 20px;
+  font-size: 1.1rem;
+}
+
+.no-data-state {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  color: var(--text-medium);
+}
+
+/* Responsividade base 
+@media (max-width: 768px) {
+  .vet-content-full {
+    padding-top: 120px;
+  }
+  
+  .dashboard-content, .vet-content {
+    padding-top: 120px;
+  }
+  
+  .pet-profile-container {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .vet-page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .status-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .status-buttons .status-button {
+    width: 100%;
+    max-width: 300px;
+  }*/

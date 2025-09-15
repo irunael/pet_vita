@@ -3,7 +3,7 @@ import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import api from '../../../services/api'; // Importa nosso serviço de API
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaSave, FaTimes } from 'react-icons/fa';
-import '../../admin/VetList/VetList.css';
+import './VetList.css';
 
 const VetList = () => {
     const [vets, setVets] = useState([]);
