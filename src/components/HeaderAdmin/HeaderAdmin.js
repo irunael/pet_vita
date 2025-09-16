@@ -3,7 +3,7 @@ import { NavLink , useNavigate} from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 import profileIcon from '../../assets/images/Header/perfilIcon.png';
-import '../css/Header.css';
+import './css/Header.css';
 import { BsBellFill, BsChatDots } from 'react-icons/bs'; 
 
 const HeaderAdmin = () => {

@@ -2,23 +2,23 @@ import { Route, Routes } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
 
 // Imports das páginas Públicas e do Cliente
-import Home from "../pages/Home";
-import ProfileScreen from "../pages/Perfil";
-import Pets from "../pages/Pets/PetsProfile";
-import AddPet from "../pages/Pets/AddPets";
-import ConversationList from '../pages/Chat/ConversationList';
-import PetsDetails from "../pages/Pets/PetsDetails";
-import ConsulPending from "../pages/Consultations/ConsulPending";
-import ConsulCompleted from "../pages/Consultations/ConsulCompleted";
-import ConsulDetails from "../pages/Consultations/ConsulDetails";
-import ConsulCompleteDetails from "../pages/Consultations/ConsulCompletedDetails";
-import ScheduleAppointment from "../pages/Consultations/ScheduleAppointment";
+import Home from "../pages/User/Home";
+import ProfileScreen from "../pages/User/Perfil";
+import Pets from "../pages/User/Pets/PetsProfile";
+import AddPet from "../pages/User/Pets/AddPets";
+import ConversationList from '../pages/User/Chat/ConversationList';
+import PetsDetails from "../pages/User/Pets/PetsDetails";
+import ConsulPending from "../pages/User/Consultations/ConsulPending";
+import ConsulCompleted from "../pages/User/Consultations/ConsulCompleted";
+import ConsulDetails from "../pages/User/Consultations/ConsulDetails";
+import ConsulCompleteDetails from "../pages/User/Consultations/ConsulCompletedDetails";
+import ScheduleAppointment from "../pages/User/Consultations/ScheduleAppointment";
 import ModalRegisterUser from "../components/ModalRegisterUser";
 import ModalRegisterVet from "../components/ModalRegisterVet";
-import AbaoutUs from "../pages/AboutUs";
-import App from "../pages/App";
-import Chat from "../pages/Chat/Chat";
-import Calendario from "../pages/Consultations/Calendario/Calendario"; 
+import AbaoutUs from "../pages/User/AboutUs";
+import App from "../pages/User/App";
+import Chat from "../pages/User/Chat/Chat";
+import Calendario from "../pages/User/Consultations/Calendario/Calendario"; 
 
 // Imports do Vet
 import VetDashboard from '../pages/Vet/Dashboard/Dashboard';
