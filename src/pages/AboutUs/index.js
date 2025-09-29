@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from '../../../components/Header_sem_cadastro'
-import Footer from '../../../components/Footer';
-import LogoEquipe from '../../../assets/images/AboutUs/Logo_equipe.png';
-import PerfilIcon from '../../../assets/images/Header/perfilIcon.png';
+import Header from '../../components/Header_sem_cadastro'
+import Footer from '../../components/Footer';
+import LogoEquipe from '../../assets/images/AboutUs/Logo_equipe.png';
+import PerfilIcon from '../../assets/images/Header/perfilIcon.png';
 import './css/styles.css';
 
 const App = () => {

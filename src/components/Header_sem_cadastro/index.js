@@ -1,24 +1,22 @@
+// components/Header_sem_cadastro.jsx
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
-import ModalVet from '../../components/ModalVet';
-import ModalUser from '../../components/ModalUser';
-import ModalRegisterUser from '../../components/ModalRegisterUser';
-import ModalRegisterVet from '../../components/ModalRegisterVet';
+import ModalManager from '../../components/ModalManager';
 import './css/styles.css';
 
 const Header_sem_cadastro = () => {
   const [activeModal, setActiveModal] = useState(null);
+  const location = useLocation(); // Hook para pegar a rota atual
 
   const openUserModal = () => setActiveModal('user');
-  const openVetModal = () => setActiveModal('vet');
   const openRegisterUserModal = () => setActiveModal('register-user');
-  const openRegisterVetModal = () => setActiveModal('register-vet');
   const closeModal = () => setActiveModal(null);
 
-  const switchToVet = () => setActiveModal('vet');
-  const switchToUser = () => setActiveModal('user');
+  // Função para verificar se o link está ativo
+  const isActiveLink = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <>
@@ -28,9 +26,24 @@ const Header_sem_cadastro = () => {
         </div>
         
         <nav className="nav nav-center">
-          <Link to="/" className="nav_link">Home</Link>
-          <Link to="/app" className="nav_link">App</Link>
-          <Link to="/sobre-nos" className="nav_link">Saiba Mais</Link>
+          <Link 
+            to="/" 
+            className={`nav_link ${isActiveLink('/') ? 'active' : ''}`}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/app" 
+            className={`nav_link ${isActiveLink('/app') ? 'active' : ''}`}
+          >
+            App
+          </Link>
+          <Link 
+            to="/sobre-nos" 
+            className={`nav_link ${isActiveLink('/sobre-nos') ? 'active' : ''}`}
+          >
+            Saiba Mais
+          </Link>
         </nav>
 
         <div className="auth">
@@ -39,28 +52,12 @@ const Header_sem_cadastro = () => {
         </div>
       </header>
 
-      {/* Renderização dos modais */}
-      {activeModal === 'user' && ReactDOM.createPortal(
-        <ModalUser 
-          onClose={closeModal} 
-          switchToVet={switchToVet} 
-          openRegister={openRegisterUserModal}
-        />, 
-        document.body
-      )}
-      {activeModal === 'register-user' && ReactDOM.createPortal(
-        <ModalRegisterUser 
-          onClose={closeModal} 
-          switchToVet={openRegisterVetModal} 
-          openLogin={openUserModal}
-        />, 
-        document.body
-      )}
-      {activeModal === 'vet' && ReactDOM.createPortal(
-        <ModalVet onClose={closeModal} switchToUser={switchToUser} />, document.body
-      )}
-      {activeModal === 'register-vet' && ReactDOM.createPortal(
-        <ModalRegisterVet onClose={closeModal} switchToUser={openRegisterUserModal} />, document.body
+      {/* Modal Manager - Controla todos os modais */}
+      {activeModal && (
+        <ModalManager 
+          initialModal={activeModal}
+          onClose={closeModal}
+        />
       )}
     </>
   );

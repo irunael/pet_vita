@@ -3,7 +3,7 @@ import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import profileIcon from '../../../assets/images/Perfil/perfilIcon.png';
 import editIcon from '../../../assets/images/Perfil/switchImage.png';
-import '../Perfil/Perfil.css';
+import './css/Perfil.css';
 
 const AdminPerfil = () => {
   const [userData, setUserData] = useState({

@@ -7,7 +7,7 @@ import mainImage from '../../../assets/images/Vet/image 56.png';
 import cardImage1 from '../../../assets/images/Vet/Group 105.png';
 import cardImage2 from '../../../assets/images/Vet/Group 106.png';
 
-import './Dashboard.css';
+import './css/Dashboard.css';
 
 const AdminDashboard = () => {
     return (

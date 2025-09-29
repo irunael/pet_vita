@@ -3,7 +3,7 @@ import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import api from '../../../services/api';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import '../../admin/Consultas/Consultas.css';
+import './css/Consultas.css';
 
 const Consultas = () => {
     const [consultas, setConsultas] = useState([]);

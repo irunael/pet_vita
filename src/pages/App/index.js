@@ -1,11 +1,11 @@
 import React from 'react';
-import Header from '../../../components/Header_sem_cadastro';
-import Footer from '../../../components/Footer';
-import IphoneApp1 from '../../../assets/images/App/Iphone_app_1.png';
-import IphoneApp2 from '../../../assets/images/App/Iphone_app_2.png';
-import PessoasIcon from '../../../assets/images/App/Pessoas.png';
-import CasaIcon from '../../../assets/images/App/Casa.png';
-import MaletaSaudeIcon from '../../../assets/images/App/Mala_saude.png';
+import Header from '../../components/Header_sem_cadastro';
+import Footer from '../../components/Footer';
+import IphoneApp1 from '../../assets/images/App/Iphone_app_1.png';
+import IphoneApp2 from '../../assets/images/App/Iphone_app_2.png';
+import PessoasIcon from '../../assets/images/App/Pessoas.png';
+import CasaIcon from '../../assets/images/App/Casa.png';
+import MaletaSaudeIcon from '../../assets/images/App/Mala_saude.png';
 import './css/styles.css';
 
 const App = () => {

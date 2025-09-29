@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
 
 // Imports das páginas Públicas e do Cliente
-import Home from "../pages/User/Home";
+import Home from "../pages/Home";
 import ProfileScreen from "../pages/User/Perfil";
 import Pets from "../pages/User/Pets/PetsProfile";
 import AddPet from "../pages/User/Pets/AddPets";
@@ -15,8 +15,8 @@ import ConsulCompleteDetails from "../pages/User/Consultations/ConsulCompletedDe
 import ScheduleAppointment from "../pages/User/Consultations/ScheduleAppointment";
 import ModalRegisterUser from "../components/ModalRegisterUser";
 import ModalRegisterVet from "../components/ModalRegisterVet";
-import AbaoutUs from "../pages/User/AboutUs";
-import App from "../pages/User/App";
+import AbaoutUs from "../pages/AboutUs";
+import App from "../pages/App";
 import Chat from "../pages/User/Chat/Chat";
 import Calendario from "../pages/User/Consultations/Calendario/Calendario"; 
 
@@ -30,13 +30,13 @@ import VetChat from '../pages/Vet/Chat/Chat';
 import VetCalendario from "../pages/Vet/Calendario/Calendario";
 
 // Imports do Admin
-import VetList from '../pages/admin/VetList/VetList';
-import AdminDashboard from "../pages/admin/Dashboard/Dashboard";
-import PacientesList from '../pages/admin/PacientesList/PacientesList';
-import AdminConsultas from '../pages/admin/Consultas/Consultas';
-import AdminRelatorios from '../pages/admin/Relatorios/Relatorios';
-import AdminPerfil from '../pages/admin/Perfil/Perfil';
-import AdminChat from '../pages/admin/Chat/Chat'; 
+import VetList from '../pages/Admin/VetList/VetList';
+import AdminDashboard from "../pages/Admin/Dashboard/Dashboard";
+import PacientesList from '../pages/Admin/PacientesList/PacientesList';
+import AdminConsultas from '../pages/Admin/Consultas/Consultas';
+import AdminRelatorios from '../pages/Admin/Relatorios/Relatorios';
+import AdminPerfil from '../pages/Admin/Perfil/Perfil';
+import AdminChat from '../pages/Admin/Chat/Chat'; 
 
 
 export default function AppRoutes() {

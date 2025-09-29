@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import pet1 from '../../../assets/images/Home/Pet1.png'; 
-import pet2 from '../../../assets/images/Home/Pet2.png'; 
-import celular from '../../../assets/images/Home/Celular.png'; 
-import gato_maltratado from '../../../assets/images/Home/Gato_mal_tratado.jpg'; 
-import pontos from '../../../assets/images/Home/Pontos.png'; 
-import Footer from '../../../components/Footer';
+import pet1 from '../../assets/images/Home/Pet1.png'; 
+import pet2 from '../../assets/images/Home/Pet2.png'; 
+import celular from '../../assets/images/Home/Celular.png'; 
+import gato_maltratado from '../../assets/images/Home/Gato_mal_tratado.jpg'; 
+import pontos from '../../assets/images/Home/Pontos.png'; 
+import Footer from '../../components/Footer';
 import './css/styles.css';
 
-import HeaderSemCadastro from '../../../components/Header_sem_cadastro';
-import HeaderComCadastro from '../../../components/Header_com_cadastro'; 
+import HeaderSemCadastro from '../../components/Header_sem_cadastro';
+import HeaderComCadastro from '../../components/Header_com_cadastro'; 
 
 
 const Home = () => {

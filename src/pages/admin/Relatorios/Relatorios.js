@@ -2,7 +2,7 @@ import React from 'react';
 import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import { FaChartBar, FaUserPlus, FaFileMedicalAlt } from 'react-icons/fa';
-import '../Relatorios/Relatorios.css';
+import './css/Relatorios.css';
 
 const AdminRelatorios = () => {
     const handleGenerateReport = () => {

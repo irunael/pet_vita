@@ -3,7 +3,7 @@ import HeaderAdmin from '../../../components/HeaderAdmin/HeaderAdmin';
 import Footer from '../../../components/Footer';
 import api from '../../../services/api';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaSave, FaTimes } from 'react-icons/fa';
-import '../PacientesList/PacientesList.css';
+import './css/PacientesList.css';
 
 const PacientesList = () => {
     const [pacientes, setPacientes] = useState([]);

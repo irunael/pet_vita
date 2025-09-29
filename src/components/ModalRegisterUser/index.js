@@ -1,6 +1,7 @@
+// components/ModalRegisterUser.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../services/api'; // Importamos nosso serviço de API
+import api from '../../services/api';
 import './css/styles.css';
 import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 
@@ -15,7 +16,7 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin }) => {
     phone: '',
     address: '',
     rg: '',
-    imageurl: 'https://i.pravatar.cc/150' // URL padrão de imagem
+    imageurl: 'https://i.pravatar.cc/150'
   });
 
   const [error, setError] = useState('');
@@ -32,8 +33,14 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin }) => {
     setLoading(true);
 
     try {
+      // Prepara os dados para o backend
+      const userData = {
+        ...formData,
+        role: 'USER' // Define o papel como usuário comum
+      };
+
       // 1. Tenta registrar o novo usuário
-      await api.post('/users/register', formData);
+      await api.post('/users/register', userData);
 
       // 2. Se o registro for bem-sucedido, tenta fazer o login
       await login(formData.email, formData.password);
@@ -42,10 +49,9 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin }) => {
       window.location.href = '/'; // Redireciona para a home logado
 
     } catch (err) {
-      // O backend retorna uma mensagem de erro útil
       const errorMessage = err.response?.data?.message || 'Erro ao cadastrar. Verifique os dados.';
       setError(errorMessage);
-      console.error(err);
+      console.error('Erro no cadastro:', err);
     } finally {
       setLoading(false);
     }
@@ -55,46 +61,119 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin }) => {
     <div className="modal active" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <span className="close" onClick={onClose}>&times;</span>
+        
         <div className="button-group">
           <button className="button active">Cliente</button>
           <button className="button" onClick={switchToVet}>Veterinário</button>
         </div>
+        
         <div className="logo-modal">
           <img src={logo} alt="Pet Vita Logo" />
         </div>
+        
         <form className="form" onSubmit={handleRegister}>
-          {error && <p className="error-message">{error}</p>}
+          {error && <div className="error-message">{error}</div>}
+          
           <div className="input-group">
-            <label htmlFor="username">Nome</label>
-            <input type="text" id="username" placeholder="Digite o seu nome" required onChange={handleChange} />
+            <label htmlFor="username">Nome Completo</label>
+            <input 
+              type="text" 
+              id="username" 
+              placeholder="Digite o seu nome completo" 
+              required 
+              value={formData.username}
+              onChange={handleChange} 
+            />
           </div>
+          
           <div className="input-group">
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" placeholder="Digite o seu email" required onChange={handleChange} />
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="seu.email@exemplo.com" 
+              required 
+              value={formData.email}
+              onChange={handleChange} 
+            />
           </div>
+          
           <div className="input-group">
             <label htmlFor="password">Senha</label>
-            <input type="password" id="password" placeholder="Digite a sua senha" required onChange={handleChange} />
+            <input 
+              type="password" 
+              id="password" 
+              placeholder="Mínimo 6 caracteres" 
+              required 
+              minLength="6"
+              value={formData.password}
+              onChange={handleChange} 
+            />
           </div>
+          
           <div className="input-group">
-            <label htmlFor="phone">Telefone (Ex: 11987654321)</label>
-            <input type="tel" id="phone" placeholder="Digite o seu telefone" required onChange={handleChange} />
+            <label htmlFor="phone">Telefone</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              placeholder="11987654321 (apenas números)" 
+              required 
+              pattern="[0-9]{11}"
+              title="Digite 11 números (DDD + número)"
+              value={formData.phone}
+              onChange={handleChange} 
+            />
           </div>
+          
           <div className="input-group">
-            <label htmlFor="address">Endereço</label>
-            <input type="text" id="address" placeholder="Digite o seu endereço" required onChange={handleChange} />
+            <label htmlFor="address">Endereço Completo</label>
+            <input 
+              type="text" 
+              id="address" 
+              placeholder="Rua, número, bairro, cidade - Estado" 
+              required 
+              value={formData.address}
+              onChange={handleChange} 
+            />
           </div>
-           <div className="input-group">
+          
+          <div className="input-group">
             <label htmlFor="rg">RG (somente números)</label>
-            <input type="text" id="rg" placeholder="Digite o seu RG" required onChange={handleChange} />
+            <input 
+              type="text" 
+              id="rg" 
+              placeholder="123456789" 
+              required 
+              pattern="[0-9]{7,12}"
+              title="Digite apenas números do RG"
+              value={formData.rg}
+              onChange={handleChange} 
+            />
           </div>
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="loading-spinner"></span>
+                Cadastrando...
+              </>
+            ) : (
+              'Cadastrar'
+            )}
           </button>
         </form>
+        
         <div className="links">
-          <button type="button" className="link-button" onClick={onClose}>Voltar</button>
-          <button type="button" className="link-button" onClick={openLogin}>Já tenho conta</button>
+          <button type="button" className="link-button" onClick={onClose}>
+            Voltar
+          </button>
+          <button type="button" className="link-button" onClick={openLogin}>
+            Já tenho conta
+          </button>
         </div>
       </div>
     </div>

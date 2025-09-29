@@ -62,7 +62,8 @@ const ModalUser = ({ onClose, switchToVet }) => {
             <label htmlFor="email-user">Email</label>
             <input 
               type="email" 
-              id="email-user" 
+              id="email-user"
+              placeholder='Digite o seu email'
               required 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
@@ -72,7 +73,8 @@ const ModalUser = ({ onClose, switchToVet }) => {
             <label htmlFor="senha-user">Senha</label>
             <input 
               type="password" 
-              id="senha-user" 
+              id="senha-user"
+              placeholder='Digite a sua senha'
               required 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
