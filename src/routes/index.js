@@ -13,7 +13,7 @@ import ConsulPending from "../pages/User/Consultations/ConsulPending";
 import ScheduleAppointment from "../pages/User/Consultations/ScheduleAppointment";
 import ResetPasswordPage from '../pages/ResetPassword';
 import Chat from "../pages/User/Chat/Chat"; // Chat de Consulta
-import AbaoutUs from "../pages/AboutUs";
+import AboutUs from "../pages/AboutUs";
 import App from "../pages/App";
 import AgendarEscolha from "../pages/User/Consultations/AgendarEscolha/AgendarEscolha";
 import AgendarServico from "../pages/User/Consultations/AgendarServicos/AgendarServico";
@@ -59,7 +59,7 @@ export default function AppRoutes() {
     <Routes>
       {/* === Rotas Públicas === */}
       <Route path="/" element={<Home />} />
-      <Route path="/sobre-nos" element={<AbaoutUs />} />
+      <Route path="/sobre-nos" element={<AboutUs />} />
       <Route path="/app" element={<App />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       

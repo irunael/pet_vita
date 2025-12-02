@@ -196,6 +196,68 @@
   gap: 30px;
 }
 
+/* Seção de boas-vindas do dashboard */
+.welcome-section-dashboard {
+  margin-bottom: 60px;
+}
+
+.welcome-section-dashboard h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  color: #8D7EFB;
+  margin: 0 0 20px 0;
+}
+
+/* Novo container para 2 cards menores lado a lado */
+.cards-container-two {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  transition: all 0.3s ease;
+  width: 380px;
+  flex-shrink: 0;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card .card-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .cards-container-two {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .dashboard-card {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .welcome-section-dashboard h1 {
+    font-size: 2rem;
+  }
+}
+
 /* ========================================= */
 /* 4. ESTILOS PÁGINA: CONSULTAS (CARDS)      */
 /* ========================================= */

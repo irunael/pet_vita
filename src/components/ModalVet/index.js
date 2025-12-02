@@ -5,9 +5,9 @@ import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 
 // --- 1. ADICIONADO 'switchToForgotPassword' AOS PROPS ---
 const ModalVet = ({ onClose, switchToUser, switchToRegisterVet, onLoginSuccess, switchToForgotPassword }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [crmv, setCrmv] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,10 +17,10 @@ const ModalVet = ({ onClose, switchToUser, switchToRegisterVet, onLoginSuccess, 
     setLoading(true);
 
     try {
-      await onLoginSuccess(email, password);
+      await onLoginSuccess(crmv, password, 'VETERINARY');
       // O redirecionamento é feito no ModalManager após login bem-sucedido
     } catch (err) {
-      setError('CRMV, e-mail ou senha inválidos. Por favor, tente novamente.');
+      setError('CRMV ou senha inválidos. Por favor, tente novamente.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -53,47 +53,49 @@ const ModalVet = ({ onClose, switchToUser, switchToRegisterVet, onLoginSuccess, 
             <input 
               type="text" 
               id="CRMV" 
-              placeholder="Digite o seu CRMV" 
+              placeholder="Ex: SP 12345" 
               required 
               value={crmv}
               onChange={(e) => setCrmv(e.target.value)}
             />
           </div>
           <div className="input-group">
-            <label htmlFor="email-vet">Email</label>
-            <input 
-              type="email" 
-              id="email-vet" 
-              placeholder="Digite o seu email" 
-              required 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
             <label htmlFor="senha-vet">Senha</label>
-            <input 
-              type="password" 
-              id="senha-vet" 
-              placeholder="Digite a sua senha" 
-              required 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"}
+                id="senha-vet" 
+                placeholder="Digite a sua senha" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
           <div className="options">
-            <div className="remember-me">
-              <input type="checkbox" id="remember-vet" />
-              <label htmlFor="remember-vet">Lembrar minha senha</label>
-            </div>
-            
-            {/* --- 2. CORREÇÃO DO LINK --- */}
             <div className="forgot-password">
               <button type="button" className="link-button" onClick={switchToForgotPassword}>
                 Esqueci a Senha
               </button>
             </div>
-            {/* ------------------------ */}
           </div>
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}

@@ -9,7 +9,29 @@ import { FaPencilAlt } from 'react-icons/fa';
 import '../css/styles.css';
 import { formatEnumLabel } from '../../../utils/format';
 
-const specialityOptions = [ "CLINICO_GERAL", "ANESTESIOLOGIA", "CARDIOLOGIA", "DERMATOLOGIA", "ENDOCRINOLOGIA", "GASTROENTEROLOGIA", "NEUROLOGIA", "NUTRICAO", "OFTALMOLOGIA", "ONCOLOGIA", "ORTOPEDIA", "REPRODUCAO_ANIMAL", "PATOLOGIA", "CIRURGIA_GERAL", "CIRURGIA_ORTOPEDICA", "ODONTOLOGIA", "ZOOTECNIA", "EXOTICOS", "ACUPUNTURA", "FISIOTERAPIA", "IMAGINOLOGIA" ];
+const specialityOptions = [
+    "CLINICO_GERAL",
+    "ANESTESIOLOGISTA",
+    "CARDIOLOGISTA",
+    "DERMATOLOGISTA",
+    "ENDOCRINOLOGISTA",
+    "GASTROENTEROLOGISTA",
+    "NEUROLOGISTA",
+    "NUTRICIONISTA",
+    "OFTALMOLOGISTA",
+    "ONCOLOGISTA",
+    "ORTOPEDISTA",
+    "ESPECIALISTA_REPRODUCAO_ANIMAL",
+    "PATOLOGISTA",
+    "CIRURGIAO_GERAL",
+    "CIRURGIAO_ORTOPEDICO",
+    "ODONTOLOGO",
+    "ZOOTECNISTA",
+    "VETERINARIO_EXOTICOS",
+    "ACUPUNTURISTA",
+    "FISIOTERAPEUTA",
+    "RADIOLOGISTA"
+];
 
 const VetPerfil = () => {
     const { user } = useAuth();
@@ -29,6 +51,9 @@ const VetPerfil = () => {
             try {
                 const response = await api.get(`/veterinary/me?_t=${new Date().getTime()}`);
                 const combinedData = { ...response.data };
+
+                console.log('Dados do veterinário recebidos:', combinedData);
+                console.log('Especialidade:', combinedData.specialityenum);
 
                 setVetData(combinedData);
                 setEditData(combinedData);
@@ -62,7 +87,12 @@ const VetPerfil = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setEditData(prev => ({ ...prev, [name]: value }));
+        console.log('Campo alterado:', name, 'Novo valor:', value);
+        setEditData(prev => {
+            const updated = { ...prev, [name]: value };
+            console.log('EditData atualizado:', updated);
+            return updated;
+        });
         setHasChanges(true);
     };
 
@@ -70,26 +100,43 @@ const VetPerfil = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            const updateDTO = {
-                name: editData.name, email: editData.email, crmv: editData.crmv,
-                specialityenum: editData.specialityenum, phone: editData.phone, rg: editData.rg,
-                imageurl: imagePreview
-            };
-            await api.put(`/admin/veterinarians/${vetData.id}`, updateDTO);
-
+            // Primeiro faz o upload da imagem se houver
+            let finalImageUrl = vetData.imageurl || ''; // Mantém a URL atual por padrão
+            
             if (imageFile) {
                 const uploadFormData = new FormData();
                 uploadFormData.append('file', imageFile);
-                await api.post(`/upload/veterinary/${vetData.id}`, uploadFormData);
+                const uploadResponse = await api.post(`/upload/veterinary/${vetData.id}`, uploadFormData);
+                // O backend retorna { url: "..." }
+                finalImageUrl = uploadResponse.data.url;
             }
+
+            // Depois atualiza os dados do veterinário usando o endpoint correto
+            const updateDTO = {
+                name: editData.name,
+                email: editData.email,
+                crmv: editData.crmv,
+                specialityenum: editData.specialityenum,
+                phone: editData.phone,
+                rg: editData.rg,
+                imageurl: finalImageUrl
+            };
+            
+            console.log('Enviando dados para atualização:', updateDTO);
+            console.log('Especialidade sendo enviada:', updateDTO.specialityenum);
+            
+            // Usa o endpoint /admin/veterinarians/{id} que agora permite veterinários atualizarem seu próprio perfil
+            await api.put(`/admin/veterinarians/${vetData.id}`, updateDTO);
+
             alert('Perfil atualizado com sucesso!');
             setIsEditing(false);
             setHasChanges(false);
             setImageFile(null);
             await fetchVetData();
         } catch (err) {
-            alert('Erro ao salvar as alterações.');
-            console.error(err.response?.data || err);
+            const errorMessage = err.response?.data?.message || err.response?.data || 'Erro ao salvar as alterações.';
+            alert(errorMessage);
+            console.error('Erro detalhado:', err.response?.data || err);
         } finally {
             setIsSaving(false);
         }
@@ -144,7 +191,12 @@ const VetPerfil = () => {
                             <div className="profile-field">
                                 <label>Especialidade</label>
                                 {isEditing ? (
-                                    <select name="specialityenum" value={editData.specialityenum || ''} onChange={handleInputChange} className="info-field editable">
+                                    <select 
+                                        name="specialityenum" 
+                                        value={editData.specialityenum || vetData.specialityenum || 'CLINICO_GERAL'} 
+                                        onChange={handleInputChange} 
+                                        className="info-field editable"
+                                    >
                                         {specialityOptions.map(s => <option key={s} value={s}>{formatEnumLabel(s)}</option>)}
                                     </select>
                                 ) : <div className="info-field">{vetData.specialityenum ? formatEnumLabel(vetData.specialityenum) : ''}</div>}
@@ -171,7 +223,13 @@ const VetPerfil = () => {
                                     <button type="button" className="cancel-button" onClick={handleCancel}>Cancelar</button>
                                 </>
                             ) : (
-                                <button type="button" className="edit-button" onClick={() => setIsEditing(true)}>Editar Perfil</button>
+                                <button type="button" className="edit-button" onClick={() => {
+                                    console.log('Iniciando edição. VetData:', vetData);
+                                    console.log('EditData antes:', editData);
+                                    setEditData({ ...vetData });
+                                    console.log('EditData depois:', { ...vetData });
+                                    setIsEditing(true);
+                                }}>Editar Perfil</button>
                             )}
                         </div>
                     </div>

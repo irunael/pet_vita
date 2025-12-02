@@ -5,24 +5,27 @@ import HeaderSemCadastro from '../../components/HeaderSemCadastro';
 import HeaderComCadastro from '../../components/HeaderComCadastro';
 import Footer from '../../components/Footer';
 import LogoEquipe from '../../assets/images/AboutUs/Logo_equipe.png';
-import PerfilIcon from '../../assets/images/Header/perfilIcon.png'; // Mantendo o ícone padrão
+import LogoDevRuan from '../../assets/images/AboutUs/Dev_Ruan.jpeg';
+import LogoDevPedro from '../../assets/images/AboutUs/Dev_Pedro.jpeg';
+import LogoDevIasmin from '../../assets/images/AboutUs/Dev_Iasmin.jpeg';
+import LogoDevEmanuel from '../../assets/images/AboutUs/Dev_Emanuel.jpeg';
+import LogoDevBernardo from '../../assets/images/AboutUs/Dev_Bernardo.jpeg';
+import LogoDevFelipe from '../../assets/images/AboutUs/Dev_Felipe.jpeg';
 import './css/styles.css';
 
 // O nome do componente foi atualizado para bater com o seu router
-const AbaoutUs = () => { 
+const AboutUs = () => { 
   const { user } = useAuth();
   
-  // --- CORREÇÃO APLICADA AQUI ---
-  // Nomes dos membros da equipe atualizados
+  // Nomes dos membros da equipe com suas respectivas imagens
   const teamMembers = [
-    { name: "João Emanuel", image: PerfilIcon },
-    { name: "Felipe Araujo", image: PerfilIcon },
-    { name: "Iasmin Aicha", image: PerfilIcon },
-    { name: "Pedro Henrique", image: PerfilIcon },
-    { name: "Bernardo de Oliveira", image: PerfilIcon },
-    { name: "Rhuan Rodrigues", image: PerfilIcon }
+    { name: "João Emanuel", image: LogoDevEmanuel },
+    { name: "Felipe Araujo", image: LogoDevFelipe },
+    { name: "Iasmin Aicha", image: LogoDevIasmin },
+    { name: "Pedro Henrique", image: LogoDevPedro },
+    { name: "Bernardo de Oliveira", image: LogoDevBernardo },
+    { name: "Rhuan Rodrigues", image: LogoDevRuan }
   ];
-  // -----------------------------
 
   return (
     <div className="app-page">
@@ -75,4 +78,4 @@ const AbaoutUs = () => {
   );
 };
 
-export default AbaoutUs; // Exportando com o nome correto
+export default AboutUs; // Exportando com o nome correto

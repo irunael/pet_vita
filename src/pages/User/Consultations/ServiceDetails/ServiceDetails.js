@@ -34,9 +34,12 @@ const ServiceDetails = () => {
     const handleCancelService = async () => {
         if (window.confirm('Tem certeza que deseja cancelar este agendamento de serviço?')) {
             try {
-                // (Esta rota de API /api/service-schedules/{id}/cancel não existe para USER)
-                alert('Função de cancelamento de serviço ainda não implementada.');
+                const realId = String(scheduleId).replace('s-', '');
+                await api.delete(`/api/service-schedules/${realId}`);
+                alert('Serviço cancelado com sucesso!');
+                navigate('/consultas');
             } catch (error) {
+                console.error('Erro ao cancelar serviço:', error);
                 alert('Não foi possível cancelar o serviço.');
             }
         }
@@ -49,9 +52,16 @@ const ServiceDetails = () => {
     return (
         <div className="pets-details-page">
             <HeaderComCadastro />
-             <div className="welcome-section">
-                <h1 className="welcome-title">Detalhes do Serviço</h1>
-                {/* Status removido daqui */}
+             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+                <h1 style={{ 
+                    fontSize: '2.2rem',
+                    background: 'linear-gradient(135deg, #8D7EFB 0%, #B77EFF 100%)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '0.5rem',
+                    fontWeight: '700'
+                }}>Detalhes do Serviço</h1>
             </div>
             <div className="pet-details-wrapper">
                 <div className="pet-details-container">
@@ -79,8 +89,7 @@ const ServiceDetails = () => {
                         </div>
                          <div className="details-actions">
                             <Link to="/consultas" className="back-button">Voltar</Link>
-                            
-                            <button type="button" className="decline-button" onClick={handleCancelService} disabled={true} title="Função ainda não disponível">
+                            <button type="button" className="decline-button" onClick={handleCancelService}>
                                 Cancelar Serviço
                             </button>
                          </div>

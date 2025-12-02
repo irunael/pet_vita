@@ -209,6 +209,8 @@
   flex-direction: column;
   gap: 5px;
   overflow: hidden;
+  align-items: flex-start;
+  text-align: left;
 }
 .pet-name {
   font-size: 1.3rem; 
@@ -280,8 +282,12 @@
 }
 .welcome-title {
   font-size: 2.2rem;
-  color: #2c3e50;
+  background: linear-gradient(135deg, #8D7EFB 0%, #B77EFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 /* Container externo (roxo claro) */
@@ -332,6 +338,11 @@
 /* Formulário de Detalhes */
 .details-form {
   width: 100%;
+}
+.pet-details-container form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .form-row {
   display: flex;
@@ -387,9 +398,11 @@
 /* Botões de Ação */
 .details-actions {
   display: flex;
-  justify-content: space-between; 
+  justify-content: flex-end;
+  align-items: center;
   gap: 15px;
   margin-top: 40px;
+  width: 100%;
 }
 
 .back-button, .remove-button, .decline-button, .edit-button, .save-button, .cancel-edit-button {
@@ -402,6 +415,11 @@
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
+  min-width: 120px;
+  max-width: 180px;
+  white-space: nowrap;
+  display: inline-block;
+  flex-shrink: 0;
 }
 .back-button {
   background-color: #f5f5f5;

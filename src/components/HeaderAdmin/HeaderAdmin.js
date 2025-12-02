@@ -13,6 +13,7 @@ const HeaderAdmin = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
+    const [userImage, setUserImage] = useState(profileIcon);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const profileRef = useRef(null);
@@ -35,6 +36,38 @@ const HeaderAdmin = () => {
         const intervalId = setInterval(fetchNotifications, 15000);
         return () => clearInterval(intervalId);
     }, [fetchNotifications]);
+
+    // Buscar foto do usuário e atualizar quando houver mudanças
+    useEffect(() => {
+        const fetchUserImage = async () => {
+            if (user?.id) {
+                try {
+                    const response = await api.get(`/users/me?_t=${new Date().getTime()}`);
+                    if (response.data.imageurl) {
+                        setUserImage(`${response.data.imageurl}?t=${new Date().getTime()}`);
+                    } else {
+                        setUserImage(profileIcon);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar imagem do usuário:', error);
+                    setUserImage(profileIcon);
+                }
+            }
+        };
+        
+        fetchUserImage();
+
+        // Listener para atualizar foto quando o perfil for atualizado
+        const handleProfileUpdate = () => {
+            fetchUserImage();
+        };
+
+        window.addEventListener('userProfileUpdated', handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener('userProfileUpdated', handleProfileUpdate);
+        };
+    }, [user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -107,7 +140,7 @@ const HeaderAdmin = () => {
                       aria-controls="admin-profile-menu"
                     >
                         <img 
-                          src={user?.imageurl || profileIcon} 
+                          src={userImage} 
                           alt="Perfil"
                           onError={(e) => { e.target.onerror = null; e.target.src = profileIcon; }}
                         />

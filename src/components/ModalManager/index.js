@@ -7,33 +7,52 @@ import ModalUser from '../ModalUser';
 import ModalVet from '../ModalVet';
 import ModalRegisterUser from '../ModalRegisterUser';
 import ModalRegisterVet from '../ModalRegisterVet';
-import ForgotPasswordModal from '../ForgotPasswordModal'; // <-- 1. IMPORTADO AQUI
+import ForgotPasswordModal from '../ForgotPasswordModal';
 
 const ModalManager = ({ initialModal, onClose }) => {
   const [currentModal, setCurrentModal] = useState(initialModal);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const switchToVet = () => setCurrentModal('vet');
-  const switchToUser = () => setCurrentModal('user');
+  // Funções inteligentes que mantêm o contexto (login ou cadastro)
+  const switchToVet = () => {
+    // Se estiver em cadastro de usuário, vai para cadastro de vet
+    if (currentModal === 'register-user') {
+      setCurrentModal('register-vet');
+    } else {
+      // Caso contrário, vai para login de vet
+      setCurrentModal('vet');
+    }
+  };
+
+  const switchToUser = () => {
+    // Se estiver em cadastro de vet, vai para cadastro de usuário
+    if (currentModal === 'register-vet') {
+      setCurrentModal('register-user');
+    } else {
+      // Caso contrário, vai para login de usuário
+      setCurrentModal('user');
+    }
+  };
+
   const switchToRegisterUser = () => setCurrentModal('register-user');
   const switchToRegisterVet = () => setCurrentModal('register-vet');
-  
-  // --- 2. FUNÇÃO ADICIONADA ---
   const switchToForgotPassword = () => setCurrentModal('forgot-password');
-  // --------------------------
 
-  // ===== FUNÇÃO CHAMADA APÓS LOGIN BEM-SUCEDIDO =====
-  const handleLoginSuccess = async (email, password) => {
+  const handleLoginSuccess = async (emailOrCrmv, password, loginType = 'USER') => {
     try {
-      const userData = await login(email, password);
-      
-      onClose(); // Fecha o modal
+      let userData;
+      if (loginType === 'VETERINARY') {
+        userData = await login(emailOrCrmv, password, 'VETERINARY');
+      } else {
+        userData = await login(emailOrCrmv, password, 'USER');
+      }
 
-      // Redireciona baseado no papel do usuário
+      onClose();
+
       switch(userData.role) {
         case 'ADMIN':
-           navigate('/admin/dashboard');
+          navigate('/admin/dashboard');
           break;
         case 'VETERINARY':
           navigate('/vet/dashboard');
@@ -42,44 +61,37 @@ const ModalManager = ({ initialModal, onClose }) => {
           navigate('/employee/dashboard');
           break;
         case 'USER':
-          navigate('/'); // Rota corrigida para a Home
+          navigate('/');
+          break;
+        default:
+          navigate('/');
+      }
+
+    } catch (error) {
+      console.error('Erro ao fazer login após cadastro:', error);
+      throw error;
+    }
+  };
+
+  const handleRegisterSuccess = async (email, password, role) => {
+    try {
+      const userData = await login(email, password);
+      
+      onClose();
+      
+      switch(userData.role) {
+        case 'VETERINARY':
+          navigate('/vet/perfil');
+          break;
+        case 'USER':
+          navigate('/');
           break;
         default:
           navigate('/');
       }
     } catch (error) {
       console.error('Erro no login:', error);
-      throw error; // Propaga o erro para o modal tratar
-    }
-  };
-
-  // ===== FUNÇÃO CHAMADA APÓS CADASTRO BEM-SUCEDIDO =====
-  const handleRegisterSuccess = async (email, password, role) => {
-    try {
-      // Após cadastro, faz login automaticamente
-      const userData = await login(email, password);
-      
-      onClose(); // Fecha o modal
-
-      // Redireciona para completar perfil baseado no papel
-      switch(userData.role) {
-        case 'VETERINARY':
-          navigate('/vet/perfil');
-          break;
-        case 'USER':
-          navigate('/perfil');
-          break;
-        default:
-          navigate('/');
-      }
-    } catch (error) {
-      console.error('Erro ao fazer login após cadastro:', error);
-      // Se falhar o login automático, abre o modal de login correspondente
-      if (role === 'VETERINARY') {
-        switchToVet();
-      } else {
-        switchToUser();
-      }
+      throw error;
     }
   };
 
@@ -87,53 +99,50 @@ const ModalManager = ({ initialModal, onClose }) => {
     switch (currentModal) {
       case 'user':
         return (
-           <ModalUser 
+          <ModalUser 
             onClose={onClose}
             switchToVet={switchToVet}
             switchToRegisterUser={switchToRegisterUser}
             onLoginSuccess={handleLoginSuccess}
-            switchToForgotPassword={switchToForgotPassword} // <-- 3. PROP ADICIONADA
+            switchToForgotPassword={switchToForgotPassword}
           />
         );
       case 'vet':
-         return (
+        return (
           <ModalVet 
             onClose={onClose}
             switchToUser={switchToUser}
             switchToRegisterVet={switchToRegisterVet}
             onLoginSuccess={handleLoginSuccess}
-            switchToForgotPassword={switchToForgotPassword} // <-- 3. PROP ADICIONADA
+            switchToForgotPassword={switchToForgotPassword}
           />
         );
       case 'register-user':
         return (
           <ModalRegisterUser 
             onClose={onClose}
-            switchToVet={switchToRegisterVet} 
+            switchToUser={switchToUser}
+            switchToVet={switchToVet}
             openLogin={switchToUser}
-            onRegisterSuccess={(email, password) => handleRegisterSuccess(email, password, 'USER')}
+            onRegisterSuccess={handleRegisterSuccess}
           />
         );
       case 'register-vet':
         return (
           <ModalRegisterVet 
             onClose={onClose}
-            switchToUser={switchToRegisterUser} 
+            switchToUser={switchToUser}
             openLogin={switchToVet}
-            onRegisterSuccess={(email, password) => handleRegisterSuccess(email, password, 'VETERINARY')}
+            onRegisterSuccess={handleRegisterSuccess}
           />
         );
-      
-      // --- 4. NOVO CASE ADICIONADO ---
       case 'forgot-password':
         return (
-          <ForgotPasswordModal
+          <ForgotPasswordModal 
             onClose={onClose}
-            onSwitchToLogin={switchToUser} // Por padrão, volta ao login de usuário
+            switchToLogin={switchToUser}
           />
         );
-      // -------------------------------
-
       default:
         return null;
     }

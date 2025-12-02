@@ -36,26 +36,37 @@ export const AuthProvider = ({ children }) => {
     loadUserFromToken();
   }, []);
 
-  const login = async (email, password, rememberMe = false) => {
+  const login = async (emailOrCrmv, password, loginType = 'USER', rememberMe = false) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token } = response.data;
+      let response;
+      
+      if (loginType === 'VETERINARY') {
+        // Login de veterinário usando CRMV
+        response = await api.post('/auth/vet-login', { crmv: emailOrCrmv, password });
+      } else {
+        // Login normal usando email
+        response = await api.post('/auth/login', { email: emailOrCrmv, password });
+      }
+      
+      const token = response.data.token;
 
       // Decide onde armazenar o token e limpa o outro storage
       if (rememberMe) {
         localStorage.setItem('authToken', token);
-        sessionStorage.removeItem('authToken'); // Limpa o storage da sessão
+        sessionStorage.removeItem('authToken');
       } else {
         sessionStorage.setItem('authToken', token);
-        localStorage.removeItem('authToken'); // Limpa o storage local
+        localStorage.removeItem('authToken');
       }
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       const userProfileResponse = await api.get(`/users/me?_t=${new Date().getTime()}`);
-      setUser(userProfileResponse.data);
+      const userData = userProfileResponse.data;
 
-      return userProfileResponse.data;
+      setUser(userData);
+
+      return userData;
 
     } catch (error) {
       console.error("Erro no login:", error);

@@ -7,6 +7,7 @@ import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 const ModalUser = ({ onClose, switchToVet, switchToRegisterUser, onLoginSuccess, switchToForgotPassword }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -59,28 +60,41 @@ const ModalUser = ({ onClose, switchToVet, switchToRegisterUser, onLoginSuccess,
           </div>
           <div className="input-group">
             <label htmlFor="senha-user">Senha</label>
-            <input 
-              type="password" 
-              id="senha-user"
-              placeholder='Digite a sua senha'
-              required 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"}
+                id="senha-user"
+                placeholder='Digite a sua senha'
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
           <div className="options">
-            <div className="remember-me">
-              <input type="checkbox" id="remember" />
-              <label htmlFor="remember">Lembrar minha senha</label>
-            </div>
-            
-            {/* --- 2. CORREÇÃO DO LINK --- */}
             <div className="forgot-password">
               <button type="button" className="link-button" onClick={switchToForgotPassword}>
                 Esqueci a Senha
               </button>
             </div>
-            {/* ------------------------ */}
           </div>
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}

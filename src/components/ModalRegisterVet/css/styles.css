@@ -115,6 +115,24 @@
   outline: none;
 }
 
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: "Geologica", sans-serif;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  background-color: white;
+  cursor: pointer;
+}
+
+.input-group select:focus {
+  border-color: #B77EFF;
+  outline: none;
+}
+
 .options {
   display: flex;
   justify-content: space-between;
@@ -205,6 +223,11 @@
 .logo-modal img {
   max-width: 120px;
   height: auto;
+}
+
+.modal-container h2 {
+  margin-top: 25px;
+  margin-bottom: 25px;
 }
 
 /* Requisitos de senha */

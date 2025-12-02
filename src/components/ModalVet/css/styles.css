@@ -64,6 +64,11 @@
   height: auto;
 }
 
+.modal-container h2 {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
 .form {
   width: 100%;
   max-width: 350px;

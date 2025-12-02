@@ -207,6 +207,11 @@
   height: auto;
 }
 
+.modal-container h2 {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
 /* Requisitos de senha */
 .password-requirements {
   margin-top: 10px;

@@ -1,11 +1,13 @@
 // src/components/NotificationDropdown/NotificationDropdown.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import './css/NotificationDropdown.css';
 
 const NotificationDropdown = ({ notifications, onNotificationRead }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleNotificationClick = async (notification) => {
     try {
@@ -15,14 +17,41 @@ const NotificationDropdown = ({ notifications, onNotificationRead }) => {
         onNotificationRead(); // Atualiza o contador no Header
       }
 
-      // 2. Redireciona dependendo do tipo de notificação
-      // Se tiver um ID de consulta associado, vai para o chat ou detalhes
-      if (notification.consultationId) {
-        // Tenta ir para o chat da consulta
-        navigate(`/chat/consultation/${notification.consultationId}`);
-      } else {
-        // Se for genérica, vai para a lista de consultas
-        navigate('/consultas');
+      // 2. Redireciona dependendo do tipo de notificação e role do usuário
+      const message = notification.message.toLowerCase();
+      const isVet = user?.role === 'VETERINARY';
+      
+      // Verifica se é notificação de chat
+      if (message.includes('mensagem') || message.includes('chat')) {
+        if (notification.consultationId) {
+          navigate(`/chat/consultation/${notification.consultationId}`);
+        } else {
+          navigate(isVet ? '/vet/chat' : '/conversations');
+        }
+      }
+      // Notificação de nova solicitação de consulta (para veterinários)
+      else if (message.includes('nova solicitação') || message.includes('nova consulta')) {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=agendadas');
+      }
+      // Verifica se é notificação de consulta agendada/aceita
+      else if (message.includes('foi agendada') || message.includes('aceita') || message.includes('confirmada')) {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=agendadas');
+      }
+      // Verifica se é notificação de consulta finalizada/concluída
+      else if (message.includes('foi finalizada') || message.includes('concluída') || message.includes('relatório')) {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=historico');
+      }
+      // Verifica se é notificação de consulta rejeitada/cancelada
+      else if (message.includes('rejeitada') || message.includes('cancelada') || message.includes('recusada')) {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=agendadas');
+      }
+      // Se tiver consultationId mas não se encaixar em nenhuma categoria
+      else if (notification.consultationId) {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=agendadas');
+      }
+      // Fallback genérico
+      else {
+        navigate(isVet ? '/vet/consultas' : '/consultas?tab=agendadas');
       }
 
     } catch (error) {

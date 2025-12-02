@@ -22,6 +22,8 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin, onRegisterSuccess 
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState({
     hasUpperCase: false,
     hasNumber: false,
@@ -159,14 +161,34 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin, onRegisterSuccess 
           
            <div className="input-group">
             <label htmlFor="password">Senha</label>
-            <input 
-              type="password" 
-              id="password" 
-              placeholder="Digite uma senha segura" 
-              required 
-              value={formData.password}
-              onChange={handleChange} 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"}
+                id="password" 
+                placeholder="Digite uma senha segura" 
+                required 
+                value={formData.password}
+                onChange={handleChange}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
             {formData.password && (
                <div className="password-requirements">
                 <p className={passwordValidation.minLength ? 'valid' : 'invalid'}>
@@ -187,14 +209,34 @@ const ModalRegisterUser = ({ onClose, switchToVet, openLogin, onRegisterSuccess 
 
           <div className="input-group">
              <label htmlFor="confirmPassword">Confirmar Senha</label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              placeholder="Digite a senha novamente" 
-               required 
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword" 
+                placeholder="Digite a senha novamente" 
+                required 
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
           
            <div className="input-group">

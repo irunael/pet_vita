@@ -6,6 +6,31 @@ import logo from '../../assets/images/Header/LogoPet_vita(Atualizado).png';
 
 const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess }) => {
 
+  // Lista de especialidades disponíveis
+  const specialities = [
+    { value: 'CLINICO_GERAL', label: 'Clínico Geral' },
+    { value: 'ANESTESIOLOGISTA', label: 'Anestesiologista' },
+    { value: 'CARDIOLOGISTA', label: 'Cardiologista' },
+    { value: 'DERMATOLOGISTA', label: 'Dermatologista' },
+    { value: 'ENDOCRINOLOGISTA', label: 'Endocrinologista' },
+    { value: 'GASTROENTEROLOGISTA', label: 'Gastroenterologista' },
+    { value: 'NEUROLOGISTA', label: 'Neurologista' },
+    { value: 'NUTRICIONISTA', label: 'Nutricionista' },
+    { value: 'OFTALMOLOGISTA', label: 'Oftalmologista' },
+    { value: 'ONCOLOGISTA', label: 'Oncologista' },
+    { value: 'ORTOPEDISTA', label: 'Ortopedista' },
+    { value: 'ESPECIALISTA_REPRODUCAO_ANIMAL', label: 'Especialista em Reprodução Animal' },
+    { value: 'PATOLOGISTA', label: 'Patologista' },
+    { value: 'CIRURGIAO_GERAL', label: 'Cirurgião Geral' },
+    { value: 'CIRURGIAO_ORTOPEDICO', label: 'Cirurgião Ortopédico' },
+    { value: 'ODONTOLOGO', label: 'Odontólogo' },
+    { value: 'ZOOTECNISTA', label: 'Zootecnista' },
+    { value: 'VETERINARIO_EXOTICOS', label: 'Veterinário de Animais Exóticos' },
+    { value: 'ACUPUNTURISTA', label: 'Acupunturista' },
+    { value: 'FISIOTERAPEUTA', label: 'Fisioterapeuta' },
+    { value: 'RADIOLOGISTA', label: 'Radiologista' }
+  ];
+
   const [formData, setFormData] = useState({
     username: '',
     crmv: '',
@@ -15,11 +40,14 @@ const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess 
     phone: '',
     address: '', // Inicia vazio
     rg: '',
-    imageurl: ''
+    imageurl: '',
+    specialityenum: 'CLINICO_GERAL' // Valor padrão
   });
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState({
     hasUpperCase: false,
     hasNumber: false,
@@ -43,6 +71,11 @@ const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess 
 
   const handleChange = (e) => {
     const { id, value } = e.target;
+    
+    if (id === 'specialityenum') {
+      console.log('Especialidade selecionada:', value);
+    }
+    
     setFormData(prev => ({ ...prev, [id]: value }));
     
     if (id === 'password') {
@@ -88,10 +121,14 @@ const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess 
         
         rg: formData.rg.replace(/[^\d]/g, ''),
         crmv: formData.crmv, 
-        specialityenum: "CLINICO_GERAL",
+        specialityenum: formData.specialityenum,
         imageurl: formData.imageurl,
         role: 'VETERINARY'
       };
+
+      console.log('=== DADOS ENVIADOS PARA O BACKEND ===');
+      console.log('Especialidade:', formData.specialityenum);
+      console.log('Dados completos:', vetData);
 
       await api.post('/users/register', vetData);
       onRegisterSuccess(formData.email, formData.password, 'VETERINARY');
@@ -140,13 +177,56 @@ const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess 
           </div>
           
           <div className="input-group">
+            <label htmlFor="specialityenum">Especialização</label>
+            <select 
+              id="specialityenum" 
+              required 
+              value={formData.specialityenum} 
+              onChange={handleChange}
+            >
+              {specialities.map(spec => (
+                <option key={spec.value} value={spec.value}>
+                  {spec.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="input-group">
             <label htmlFor="email">Email</label>
             <input type="email" id="email" placeholder="seu.email@exemplo.com" required value={formData.email} onChange={handleChange} />
           </div>
           
           <div className="input-group">
             <label htmlFor="password">Senha</label>
-            <input type="password" id="password" placeholder="Digite uma senha segura" required value={formData.password} onChange={handleChange} />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"}
+                id="password" 
+                placeholder="Digite uma senha segura" 
+                required 
+                value={formData.password} 
+                onChange={handleChange}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
             {formData.password && (
               <div className="password-requirements">
                 <p className={passwordValidation.minLength ? 'valid' : 'invalid'}>
@@ -167,7 +247,34 @@ const ModalRegisterVet = ({ onClose, switchToUser, openLogin, onRegisterSuccess 
           
           <div className="input-group">
             <label htmlFor="confirmPassword">Confirmar Senha</label>
-            <input type="password" id="confirmPassword" placeholder="Digite a senha novamente" required value={formData.confirmPassword} onChange={handleChange} />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword" 
+                placeholder="Digite a senha novamente" 
+                required 
+                value={formData.confirmPassword} 
+                onChange={handleChange}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+                aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
           
           <div className="input-group">

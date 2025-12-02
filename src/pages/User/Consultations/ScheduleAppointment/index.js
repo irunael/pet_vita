@@ -1,5 +1,5 @@
 // src/pages/User/Consultations/ScheduleAppointment.js
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HeaderComCadastro from '../../../../components/HeaderComCadastro';
 import Footer from '../../../../components/Footer';
@@ -10,17 +10,16 @@ import { toast } from 'react-toastify';
 import { formatEnumLabel } from '../../../../utils/format';
 
 const specialityOptions = [
-  "CLINICO_GERAL", "ANESTESIOLOGIA", "CARDIOLOGIA", "DERMATOLOGIA", "ENDOCRINOLOGIA", 
-  "GASTROENTEROLOGIA", "NEUROLOGIA", "NUTRICAO", "OFTALMOLOGIA", "ONCOLOGIA", 
-  "ORTOPEDIA", "REPRODUCAO_ANIMAL", "PATOLOGIA", "CIRURGIA_GERAL", "CIRURGIA_ORTOPEDICA", 
-  "ODONTOLOGIA", "ZOOTECNIA", "EXOTICOS", "ACUPUNTURA", "FISIOTERAPIA", "IMAGINOLOGIA"
+  "CLINICO_GERAL", "ANESTESIOLOGISTA", "CARDIOLOGISTA", "DERMATOLOGISTA", "ENDOCRINOLOGISTA", 
+  "GASTROENTEROLOGISTA", "NEUROLOGISTA", "NUTRICIONISTA", "OFTALMOLOGISTA", "ONCOLOGISTA", 
+  "ORTOPEDISTA", "ESPECIALISTA_REPRODUCAO_ANIMAL", "PATOLOGISTA", "CIRURGIAO_GERAL", "CIRURGIAO_ORTOPEDICO", 
+  "ODONTOLOGO", "ZOOTECNISTA", "VETERINARIO_EXOTICOS", "ACUPUNTURISTA", "FISIOTERAPEUTA", "RADIOLOGISTA"
 ];
 
 const ScheduleAppointment = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
-  const [allVets, setAllVets] = useState([]); 
   const [allMedicalServices, setAllMedicalServices] = useState([]);
   
   const [availableSpecialties, setAvailableSpecialties] = useState([]);
@@ -49,18 +48,12 @@ const ScheduleAppointment = () => {
       if (user?.id) {
         try {
           setError('');
-          const [petsResponse, vetsResponse, servicesResponse] = await Promise.all([
+          const [petsResponse, servicesResponse] = await Promise.all([
             api.get('/pets/my-pets'),
-            api.get('/veterinary/search'), // Busca todos os vets
             api.get('/api/public/services') 
           ]);
 
           setPets(petsResponse.data || []);
-          
-          // --- CORREÇÃO 1: Carregamento de dados ---
-          // A API retorna um array (response.data), 
-          // não um objeto (response.data.content)
-          setAllVets(vetsResponse.data || []);
           
           const medServices = servicesResponse.data.filter(s => s.medicalService === true);
           setAllMedicalServices(medServices || []);
@@ -102,7 +95,7 @@ const ScheduleAppointment = () => {
     fetchAvailableTimes();
   }, [fetchAvailableTimes]);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     let updatedFormData = { ...formData, [name]: value };
 
@@ -110,14 +103,25 @@ const ScheduleAppointment = () => {
       const specialty = value;
 
       if (specialty) {
-        // --- CORREÇÃO 2: Verificação de Nulo ---
-        // Adiciona "vet.specialityenum &&" para evitar crash
-        const vetsWithSpecialty = allVets.filter(vet => vet.specialityenum && vet.specialityenum === specialty);
-        setFilteredVets(vetsWithSpecialty);
+        try {
+          // Busca veterinários com a especialidade selecionada do backend
+          const vetsResponse = await api.get('/veterinary/search', {
+            params: { speciality: specialty }
+          });
+          
+          console.log('Veterinários encontrados:', vetsResponse.data);
+          setFilteredVets(vetsResponse.data || []);
 
-        const servicesWithSpecialty = allMedicalServices.filter(s => s.speciality === specialty);
-        setFilteredServices(servicesWithSpecialty);
+          // Filtra serviços pela especialidade
+          const servicesWithSpecialty = allMedicalServices.filter(s => s.speciality === specialty);
+          setFilteredServices(servicesWithSpecialty);
 
+        } catch (error) {
+          console.error('Erro ao buscar veterinários:', error);
+          setFilteredVets([]);
+          setFilteredServices([]);
+          toast.error('Erro ao buscar veterinários da especialidade selecionada');
+        }
       } else {
         setFilteredVets([]);
         setFilteredServices([]);
